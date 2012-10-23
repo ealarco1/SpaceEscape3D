@@ -9,6 +9,7 @@ import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
+import com.jme3.scene.Spatial;
 import objects.Planet;
 
 /**
@@ -18,6 +19,7 @@ public class Main extends SimpleApplication {
     
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
     private Planet[] planets;
+    private Spatial spaceship;
     private FilterPostProcessor fpp;
     private BloomFilter bloom;
 
@@ -118,6 +120,14 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(p9);
         pluto = new Planet("Pluto", 1.65f, new Vector3f(53.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), (float) Math.random());
         planets[8] = pluto;
+        
+        spaceship = assetManager.loadModel("Models/X-WING.j3o");
+        spaceship.scale(0.1f);
+        spaceship.rotate(0, (float)Math.PI, 0);
+        spaceship.move(0, 0, 6f);
+        rootNode.attachChild(spaceship);
+        
+        cam.setLocation(new Vector3f(0, 2f, 8f));
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
