@@ -1,6 +1,10 @@
 
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.input.ChaseCamera;
+import com.jme3.input.KeyInput;
+import com.jme3.input.controls.AnalogListener;
+import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -127,14 +131,61 @@ public class Main extends SimpleApplication {
         spaceship.move(0, 0, 6f);
         rootNode.attachChild(spaceship);
         
-        cam.setLocation(new Vector3f(0, 2f, 8f));
+        //cam.setLocation(new Vector3f(0, 2f, 8f));
+        flyCam.setEnabled(false);
+        ChaseCamera chaseCam = new ChaseCamera(cam, spaceship, inputManager);
+        chaseCam.setMaxDistance(6f);
+        chaseCam.setDefaultDistance(6f);
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
         sunLight.setPosition(new Vector3f(0f, 0f, 0f));
         sunLight.setRadius(100f);
         rootNode.addLight(sunLight);
+        
+        initKeys();
     }
+    private void initKeys() {
+        inputManager.addMapping("Left",  new KeyTrigger(KeyInput.KEY_A));
+        inputManager.addMapping("Right",   new KeyTrigger(KeyInput.KEY_D));
+        inputManager.addMapping("Up",  new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping("Down",  new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("LeftSide",  new KeyTrigger(KeyInput.KEY_Q));
+        inputManager.addMapping("RightSide",  new KeyTrigger(KeyInput.KEY_E));
+        inputManager.addMapping("Accelerate",   new KeyTrigger(KeyInput.KEY_SPACE));
+    
+        inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
+    }
+    
+    private AnalogListener analogListener = new AnalogListener() {
+
+        public void onAnalog(String name, float value, float tpf) {
+            if (name.equals("Left")) {
+                spaceship.rotate(0, tpf, 0);
+            }
+            if (name.equals("Right")) {
+                spaceship.rotate(0, -tpf, 0);
+            }
+            if (name.equals("Up")) {
+                spaceship.rotate(-tpf, 0, 0);
+            }
+            if (name.equals("Down")) {
+                spaceship.rotate(tpf, 0, 0);
+            }
+            if (name.equals("LeftSide")) {
+                spaceship.rotate(0, 0, -tpf);
+            }
+            if (name.equals("RightSide")) {
+                spaceship.rotate(0, 0, tpf);
+            }
+            if (name.equals("Accelerate")) {
+                Vector3f movement = new Vector3f(0, 0, 0);
+                spaceship.getLocalRotation().mult(new Vector3f(0, 0, tpf), movement);
+                spaceship.move(movement);                
+            }
+        }
+        
+    };
 
     @Override
     public void simpleUpdate(float tpf) {
