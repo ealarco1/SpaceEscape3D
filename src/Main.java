@@ -14,6 +14,7 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.util.SkyFactory;
 import objects.Planet;
 
 /**
@@ -142,6 +143,8 @@ public class Main extends SimpleApplication {
         sunLight.setPosition(new Vector3f(0f, 0f, 0f));
         sunLight.setRadius(100f);
         rootNode.addLight(sunLight);
+        
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars.png", true));
         
         initKeys();
     }
