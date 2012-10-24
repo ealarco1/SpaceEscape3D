@@ -1,6 +1,7 @@
 
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.collision.CollisionResults;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
@@ -52,8 +53,8 @@ public class Main extends SimpleApplication {
         sun = new Planet("Sun", 3f, null, mat10, null, 0, 0);
         rootNode.attachChild(sun.getGeom());
         
-        fpp=new FilterPostProcessor(assetManager);
-        bloom= new BloomFilter(BloomFilter.GlowMode.Objects); 
+        fpp = new FilterPostProcessor(assetManager);
+        bloom = new BloomFilter(BloomFilter.GlowMode.Objects); 
         bloom.setExposurePower(40f);
         bloom.setBloomIntensity(10f);
         fpp.addFilter(bloom);
@@ -132,14 +133,13 @@ public class Main extends SimpleApplication {
         pluto = new Planet("Pluto", 1.65f, new Vector3f(53.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), (float) Math.random());
         planets[8] = pluto;
         
-        spaceship = assetManager.loadModel("Models/X-WING.j3o");
+        spaceship = assetManager.loadModel("Models/X-WING/X-WING.j3o");
         spaceshipNode = new Node("SpaceshipNode");
         spaceship.scale(0.1f);
         spaceship.rotate(0, FastMath.PI, 0);
         spaceshipNode.setLocalTranslation(0, 0, 6f);
         spaceshipNode.attachChild(spaceship);
-        rootNode.attachChild(spaceshipNode);        
-        
+        rootNode.attachChild(spaceshipNode);
         
         //cam.setLocation(new Vector3f(0, 2f, 8f));
         flyCam.setEnabled(false);
@@ -147,7 +147,7 @@ public class Main extends SimpleApplication {
         camNode = new CameraNode("CameraNode", cam);
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         spaceshipNode.attachChild(camNode);
-        camNode.setLocalTranslation(new Vector3f(0, 1, 4));
+        camNode.setLocalTranslation(new Vector3f(0, 0.5f, 2));
         camNode.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
         
         /*ChaseCamera chaseCam = new ChaseCamera(cam, spaceship, inputManager);
@@ -200,8 +200,8 @@ public class Main extends SimpleApplication {
             }
             if (name.equals("Accelerate")) {
                 Vector3f movement = new Vector3f(0, 0, 0);
-                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -2*tpf), movement);
-                spaceshipNode.move(movement);                
+                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -4*tpf), movement);
+                spaceshipNode.move(movement);
             }
         }
         
@@ -212,7 +212,9 @@ public class Main extends SimpleApplication {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationVel()*tpf);
             planet.getPivot().rotate(0, planet.getTraslationVel()*tpf, 0);
-            
+            /*if (planet.getGeom().collideWith(spaceship, new CollisionResults()) != 0) {
+                System.out.println("Collision with " + planet.getGeom().getName());
+            }*/
         }
     }
 
