@@ -6,6 +6,7 @@ import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
+import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.PointLight;
@@ -36,6 +37,7 @@ public class Main extends SimpleApplication {
     private FilterPostProcessor fpp;
     private BloomFilter bloom;
     private CameraNode camNode;
+    private Node turbines;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -143,23 +145,32 @@ public class Main extends SimpleApplication {
         spaceshipNode.attachChild(spaceship);
         rootNode.attachChild(spaceshipNode);
         
-        ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+        turbines = new Node("Turbines");
+        turbines.setLocalTranslation(0, 0, 0.4f);
+        
+        ParticleEmitter fire1 = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
         Material fireMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
         fireMat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-        fire.setMaterial(fireMat);
-        fire.setImagesX(2);
-        fire. setImagesY(2);
-        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-        fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 2));
-        fire.setStartSize(0.2f);
-        fire.setEndSize(0.1f);
-        fire.setGravity(0, 0, 0);
-        fire.setLowLife(1f);
-        fire.setHighLife(2f);
-        fire.getParticleInfluencer().setVelocityVariation(0.2f);
-        fire.setLocalTranslation(0, 0, 0.5f);
-        spaceshipNode.attachChild(fire);
+        fire1.setMaterial(fireMat);
+        fire1.setImagesX(2);
+        fire1.setImagesY(2);
+        fire1.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
+        fire1.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+        fire1.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 2));
+        fire1.setStartSize(0.1f);
+        fire1.setEndSize(0.05f);
+        fire1.setGravity(0, 0, 0);
+        fire1.setLowLife(0.1f);
+        fire1.setHighLife(0.2f);
+        fire1.getParticleInfluencer().setVelocityVariation(0.2f);
+        fire1.setLocalTranslation(0.1f, 0, 0);
+        turbines.attachChild(fire1);
+        
+        ParticleEmitter fire2 = fire1.clone();
+        fire2.setLocalTranslation(-0.1f, 0, 0);
+        turbines.attachChild(fire2);
+        
+        spaceshipNode.attachChild(turbines);
         
         flyCam.setEnabled(false);
         
@@ -194,7 +205,29 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("Accelerate",   new KeyTrigger(KeyInput.KEY_SPACE));
     
         inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
+        inputManager.addListener(actionListener, new String[]{"Accelerate"});
     }
+    
+    private ActionListener actionListener = new ActionListener() {
+        public void onAction(String name, boolean isPressed, float tpf) {
+            if (name.equals("Accelerate")) {
+                if (isPressed) {
+                    for (Spatial child : turbines.getChildren()) {
+                        ParticleEmitter fire = (ParticleEmitter) child;
+                        fire.setStartSize(0.2f);
+                        fire.setEndSize(0.1f);
+                    }
+                } else {
+                    for (Spatial child : turbines.getChildren()) {
+                        ParticleEmitter fire = (ParticleEmitter) child;
+                        fire.setStartSize(0.1f);
+                        fire.setEndSize(0.05f);
+                    }
+                }
+            }
+        }
+        
+    };
     
     private AnalogListener analogListener = new AnalogListener() {
 
