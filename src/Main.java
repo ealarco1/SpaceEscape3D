@@ -2,6 +2,8 @@
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.collision.CollisionResults;
+import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
 import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.AnalogListener;
@@ -141,7 +143,24 @@ public class Main extends SimpleApplication {
         spaceshipNode.attachChild(spaceship);
         rootNode.attachChild(spaceshipNode);
         
-        //cam.setLocation(new Vector3f(0, 2f, 8f));
+        ParticleEmitter fire = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
+        Material fireMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        fireMat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
+        fire.setMaterial(fireMat);
+        fire.setImagesX(2);
+        fire. setImagesY(2);
+        fire.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
+        fire.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+        fire.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 2));
+        fire.setStartSize(0.2f);
+        fire.setEndSize(0.1f);
+        fire.setGravity(0, 0, 0);
+        fire.setLowLife(1f);
+        fire.setHighLife(2f);
+        fire.getParticleInfluencer().setVelocityVariation(0.2f);
+        fire.setLocalTranslation(0, 0, 0.5f);
+        spaceshipNode.attachChild(fire);
+        
         flyCam.setEnabled(false);
         
         camNode = new CameraNode("CameraNode", cam);
