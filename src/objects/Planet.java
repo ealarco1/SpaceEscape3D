@@ -16,13 +16,13 @@ public class Planet {
     private float radius;
     private Node pivot;
     private float rotationVel;
-    private float traslationVel;
+    private float translationVel;
     
     public Planet(String name, float radius, Vector3f initLocation, 
-            Material mat, Node pivot, float rotationVel, float traslationVel) {
+            Material mat, Node pivot, float rotationVel, float translationVel) {
         this.pivot = pivot;
         this.rotationVel = rotationVel;
-        this.traslationVel = traslationVel;
+        this.translationVel = translationVel;
         geom = new Geometry(name, new Sphere(32, 32, radius));
         geom.setMaterial(mat);
         if(initLocation != null) geom.setLocalTranslation(initLocation);
@@ -42,8 +42,8 @@ public class Planet {
         return rotationVel;
     }
 
-    public float getTraslationVel() {
-        return traslationVel;
+    public float getTranslationVel() {
+        return translationVel;
     }
     
 }

@@ -38,6 +38,7 @@ public class Main extends SimpleApplication {
     private BloomFilter bloom;
     private CameraNode camNode;
     private Node turbines;
+    private int bloomDirection;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -56,13 +57,6 @@ public class Main extends SimpleApplication {
         mat10.setBoolean("UseAlpha", true);
         sun = new Planet("Sun", 3f, null, mat10, null, 0, 0);
         rootNode.attachChild(sun.getGeom());
-        
-        fpp = new FilterPostProcessor(assetManager);
-        bloom = new BloomFilter(BloomFilter.GlowMode.Objects); 
-        bloom.setExposurePower(40f);
-        bloom.setBloomIntensity(10f);
-        fpp.addFilter(bloom);
-        viewPort.addProcessor(fpp);
         
         Material mat1 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat1.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Mercury.jpg"));
@@ -83,7 +77,8 @@ public class Main extends SimpleApplication {
         Material mat3 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat3.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Earth/Color.jpg"));
         mat3.setTexture("ParallaxMap", assetManager.loadTexture("Textures/Earth/Bump.jpg"));
-        mat3.setTexture("SpecularMap", assetManager.loadTexture("Textures/Earth/Specular.jpg"));
+        mat3.setTexture("SpecularMap", assetManager.loadTexture("Textures/Earth/Specular.jpg"));        
+        //mat3.setTexture("GlowMap", assetManager.loadTexture("Textures/Earth/Lights3.jpeg"));
         Node p3 = new Node();
         rootNode.attachChild(p3);
         earth = new Planet("Earth", 1.6f, new Vector3f(16.0f, 0f, -6.0f), mat3, p3, (float) Math.random(), (float) Math.random());
@@ -180,18 +175,22 @@ public class Main extends SimpleApplication {
         camNode.setLocalTranslation(new Vector3f(0, 0.5f, 2));
         camNode.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
         
-        /*ChaseCamera chaseCam = new ChaseCamera(cam, spaceship, inputManager);
-        chaseCam.setMaxDistance(4f);
-        chaseCam.setDefaultDistance(4f);
-        chaseCam.setDefaultVerticalRotation(FastMath.PI / 8);*/
-        
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
         sunLight.setPosition(new Vector3f(0f, 0f, 0f));
         sunLight.setRadius(100f);
         rootNode.addLight(sunLight);
         
-        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars.png", true));
+        fpp = new FilterPostProcessor(assetManager);
+        bloom = new BloomFilter(BloomFilter.GlowMode.Objects); 
+        bloom.setExposurePower(40f);
+        bloom.setBloomIntensity(2f);
+        fpp.addFilter(bloom);
+        viewPort.addProcessor(fpp);
+        
+        rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars5.jpeg", true));
+        
+        bloomDirection = 1;
         
         initKeys();
     }
@@ -263,10 +262,15 @@ public class Main extends SimpleApplication {
     public void simpleUpdate(float tpf) {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationVel()*tpf);
-            planet.getPivot().rotate(0, planet.getTraslationVel()*tpf, 0);
-            /*if (planet.getGeom().collideWith(spaceship, new CollisionResults()) != 0) {
-                System.out.println("Collision with " + planet.getGeom().getName());
-            }*/
+            planet.getPivot().rotate(0, planet.getTranslationVel()*tpf, 0);
+            
+            /*bloom.setBlurScale(bloom.getBlurScale() + (bloomDirection * tpf / 8));
+            if (bloom.getBlurScale() > 3) bloomDirection = -1;
+            if (bloom.getBlurScale() < 1) bloomDirection = 1;*/
+            
+            bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
+            if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
+            if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
         }
     }
 
