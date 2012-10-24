@@ -8,12 +8,16 @@ import com.jme3.input.controls.KeyTrigger;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
+import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.control.CameraControl;
+import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.util.SkyFactory;
 import objects.Planet;
 
@@ -25,8 +29,10 @@ public class Main extends SimpleApplication {
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
     private Planet[] planets;
     private Spatial spaceship;
+    private Node spaceshipNode;
     private FilterPostProcessor fpp;
     private BloomFilter bloom;
+    private CameraNode camNode;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -127,16 +133,27 @@ public class Main extends SimpleApplication {
         planets[8] = pluto;
         
         spaceship = assetManager.loadModel("Models/X-WING.j3o");
+        spaceshipNode = new Node("SpaceshipNode");
         spaceship.scale(0.1f);
-        spaceship.rotate(0, (float)Math.PI, 0);
-        spaceship.move(0, 0, 6f);
-        rootNode.attachChild(spaceship);
+        spaceship.rotate(0, FastMath.PI, 0);
+        spaceshipNode.setLocalTranslation(0, 0, 6f);
+        spaceshipNode.attachChild(spaceship);
+        rootNode.attachChild(spaceshipNode);        
+        
         
         //cam.setLocation(new Vector3f(0, 2f, 8f));
         flyCam.setEnabled(false);
-        ChaseCamera chaseCam = new ChaseCamera(cam, spaceship, inputManager);
-        chaseCam.setMaxDistance(6f);
-        chaseCam.setDefaultDistance(6f);
+        
+        camNode = new CameraNode("CameraNode", cam);
+        camNode.setControlDir(ControlDirection.SpatialToCamera);
+        spaceshipNode.attachChild(camNode);
+        camNode.setLocalTranslation(new Vector3f(0, 1, 4));
+        camNode.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
+        
+        /*ChaseCamera chaseCam = new ChaseCamera(cam, spaceship, inputManager);
+        chaseCam.setMaxDistance(4f);
+        chaseCam.setDefaultDistance(4f);
+        chaseCam.setDefaultVerticalRotation(FastMath.PI / 8);*/
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
@@ -164,27 +181,27 @@ public class Main extends SimpleApplication {
 
         public void onAnalog(String name, float value, float tpf) {
             if (name.equals("Left")) {
-                spaceship.rotate(0, tpf, 0);
+                spaceshipNode.rotate(0, tpf, 0);
             }
             if (name.equals("Right")) {
-                spaceship.rotate(0, -tpf, 0);
+                spaceshipNode.rotate(0, -tpf, 0);
             }
             if (name.equals("Up")) {
-                spaceship.rotate(-tpf, 0, 0);
+                spaceshipNode.rotate(tpf, 0, 0);
             }
             if (name.equals("Down")) {
-                spaceship.rotate(tpf, 0, 0);
+                spaceshipNode.rotate(-tpf, 0, 0);
             }
             if (name.equals("LeftSide")) {
-                spaceship.rotate(0, 0, -tpf);
+                spaceshipNode.rotate(0, 0, tpf);
             }
             if (name.equals("RightSide")) {
-                spaceship.rotate(0, 0, tpf);
+                spaceshipNode.rotate(0, 0, -tpf);
             }
             if (name.equals("Accelerate")) {
                 Vector3f movement = new Vector3f(0, 0, 0);
-                spaceship.getLocalRotation().mult(new Vector3f(0, 0, tpf), movement);
-                spaceship.move(movement);                
+                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -2*tpf), movement);
+                spaceshipNode.move(movement);                
             }
         }
         
