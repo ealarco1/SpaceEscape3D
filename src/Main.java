@@ -146,8 +146,8 @@ public class Main extends SimpleApplication {
         fire1.setMaterial(fireMat);
         fire1.setImagesX(2);
         fire1.setImagesY(2);
-        fire1.setEndColor(new ColorRGBA(1f, 0f, 0f, 1f));   // red
-        fire1.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+        fire1.setEndColor(new ColorRGBA(1f, 1f, 0f, 1f));   // red
+        fire1.setStartColor(new ColorRGBA(0f, 0f, 1f, 0.5f)); // yellow
         fire1.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 2));
         fire1.setStartSize(0.1f);
         fire1.setEndSize(0.05f);
