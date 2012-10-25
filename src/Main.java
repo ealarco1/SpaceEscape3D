@@ -1,6 +1,7 @@
 
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.input.KeyInput;
@@ -36,6 +37,7 @@ public class Main extends SimpleApplication {
     private CameraNode camNode;
     private Node turbines;
     private int bloomDirection;
+    private AudioNode bgAudio;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -190,7 +192,17 @@ public class Main extends SimpleApplication {
         bloomDirection = 1;
         
         initKeys();
+        initAudio();
     }
+    
+    private void initAudio() {
+        bgAudio = new AudioNode(assetManager, "Sound/Background.wav");
+        bgAudio.setLooping(true);
+        bgAudio.setVolume(3);
+        rootNode.attachChild(bgAudio);
+        bgAudio.play();
+    }
+    
     private void initKeys() {
         inputManager.addMapping("Left",  new KeyTrigger(KeyInput.KEY_A));
         inputManager.addMapping("Right",   new KeyTrigger(KeyInput.KEY_D));
@@ -248,7 +260,7 @@ public class Main extends SimpleApplication {
             }
             if (name.equals("Accelerate")) {
                 Vector3f movement = new Vector3f(0, 0, 0);
-                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -4*tpf), movement);
+                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -8 * tpf), movement);
                 spaceshipNode.move(movement);
             }
         }
