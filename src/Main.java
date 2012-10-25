@@ -38,6 +38,7 @@ public class Main extends SimpleApplication {
     private Node turbines;
     private int bloomDirection;
     private AudioNode bgAudio;
+    private AudioNode spaceshipAudio;
 
     public static void main(String[] args) {
         Main app = new Main();
@@ -196,7 +197,12 @@ public class Main extends SimpleApplication {
     }
     
     private void initAudio() {
-        bgAudio = new AudioNode(assetManager, "Sound/Background.wav");
+        spaceshipAudio = new AudioNode(assetManager, "Sound/Fire3.wav", false);
+        spaceshipAudio.setLooping(true);
+        spaceshipAudio.setVolume(2);
+        spaceshipNode.attachChild(spaceshipAudio);
+        
+        bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
         rootNode.attachChild(bgAudio);
@@ -225,12 +231,14 @@ public class Main extends SimpleApplication {
                         fire.setStartSize(0.2f);
                         fire.setEndSize(0.1f);
                     }
+                    spaceshipAudio.play();
                 } else {
                     for (Spatial child : turbines.getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
                         fire.setStartSize(0.1f);
                         fire.setEndSize(0.05f);
                     }
+                    spaceshipAudio.stop();
                 }
             }
         }
@@ -272,10 +280,6 @@ public class Main extends SimpleApplication {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationVel()*tpf);
             planet.getPivot().rotate(0, planet.getTranslationVel()*tpf, 0);
-            
-            /*bloom.setBlurScale(bloom.getBlurScale() + (bloomDirection * tpf / 8));
-            if (bloom.getBlurScale() > 3) bloomDirection = -1;
-            if (bloom.getBlurScale() < 1) bloomDirection = 1;*/
             
             bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
             if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
