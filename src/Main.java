@@ -133,7 +133,7 @@ public class Main extends SimpleApplication {
         spaceshipNode = new Node("SpaceshipNode");
         spaceship.scale(0.1f);
         spaceship.rotate(0, FastMath.PI, 0);
-        spaceshipNode.setLocalTranslation(0, 0, 6f);
+        spaceshipNode.setLocalTranslation(0, 10f, 30f);
         spaceshipNode.attachChild(spaceship);
         rootNode.attachChild(spaceshipNode);
         
@@ -170,7 +170,7 @@ public class Main extends SimpleApplication {
         camNode.setControlDir(ControlDirection.SpatialToCamera);
         spaceshipNode.attachChild(camNode);
         camNode.setLocalTranslation(new Vector3f(0, 0.5f, 2));
-        camNode.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
+        camNode.lookAt(spaceshipNode.getLocalTranslation(), Vector3f.UNIT_Y);
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
