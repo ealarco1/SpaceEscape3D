@@ -197,7 +197,7 @@ public class Main extends SimpleApplication {
     }
     
     private void initAudio() {
-        spaceshipAudio = new AudioNode(assetManager, "Sound/Fire3.wav", false);
+        spaceshipAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
         spaceshipAudio.setLooping(true);
         spaceshipAudio.setVolume(2);
         spaceshipNode.attachChild(spaceshipAudio);
@@ -261,10 +261,10 @@ public class Main extends SimpleApplication {
                 spaceshipNode.rotate(-tpf, 0, 0);
             }
             if (name.equals("LeftSide")) {
-                spaceshipNode.rotate(0, 0, tpf);
+                spaceshipNode.rotate(0, 0, 2*tpf);
             }
             if (name.equals("RightSide")) {
-                spaceshipNode.rotate(0, 0, -tpf);
+                spaceshipNode.rotate(0, 0, -2*tpf);
             }
             if (name.equals("Accelerate")) {
                 Vector3f movement = new Vector3f(0, 0, 0);
