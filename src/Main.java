@@ -45,7 +45,8 @@ public class Main extends SimpleApplication {
     private int bloomDirection;
     private AudioNode bgAudio;
     private AudioNode spaceshipAudio;
-    Node spaceshipFront;
+    private Node spaceshipFront;
+    private Node spaceshipBack;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -188,7 +189,11 @@ public class Main extends SimpleApplication {
         
         spaceshipFront = new Node("SpaceshipFront");
         spaceshipNode.attachChild(spaceshipFront);
-        spaceshipFront.setLocalTranslation(0, 0, -1);
+        spaceshipFront.setLocalTranslation(0, 0, -2);
+        
+        spaceshipBack = new Node("SpaceshipBack");
+        spaceshipNode.attachChild(spaceshipBack);
+        spaceshipBack.setLocalTranslation(0, 0, 2);
         
         flyCam.setEnabled(false);
         
@@ -305,12 +310,12 @@ public class Main extends SimpleApplication {
             if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
             if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
             
-            Vector3f direction = spaceshipNode.getWorldTranslation().subtract(cam.getLocation());
+            Vector3f direction = spaceshipBack.getWorldTranslation().subtract(cam.getLocation());
             float magnitude = direction.length();
-            cam.lookAt(spaceshipFront.getWorldTranslation(), Vector3f.UNIT_Y);
-            if (magnitude > 2) {
-                cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude * magnitude / 200)));
+            if (magnitude > 0) {
+                cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 10)));
             }
+            cam.lookAt(spaceshipFront.getWorldTranslation(), Vector3f.UNIT_Y);
                 
         }
     }
