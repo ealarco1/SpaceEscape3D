@@ -21,6 +21,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.util.SkyFactory;
+import java.awt.DisplayMode;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import objects.Planet;
 
 /**
@@ -41,8 +44,21 @@ public class Main extends SimpleApplication {
     private AudioNode spaceshipAudio;
 
     public static void main(String[] args) {
-        Main app = new Main();
-        app.start();
+        Main app = new Main();        
+        app.start();        
+        app.toggleToFullscreen();
+    }
+    
+    public void toggleToFullscreen() {
+        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        DisplayMode[] modes = device.getDisplayModes();
+        int i=0; // note: there are usually several, let's pick the first
+        settings.setResolution(modes[i].getWidth(),modes[i].getHeight());
+        settings.setFrequency(modes[i].getRefreshRate());
+        settings.setDepthBits(modes[i].getBitDepth());
+        settings.setFullscreen(device.isFullScreenSupported());
+        setSettings(settings);
+        restart();
     }
 
     @Override
