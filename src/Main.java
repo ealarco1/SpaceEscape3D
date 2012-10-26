@@ -13,7 +13,6 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
@@ -28,6 +27,7 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import objects.Planet;
+import objects.Spaceship;
 
 /**
  * @author Esteban Alarcon Ceballos y Enrique Arango Lyons
@@ -36,17 +36,12 @@ public class Main extends SimpleApplication {
     
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
     private Planet[] planets;
-    private Spatial spaceship;
-    private Node spaceshipNode;
+    private Spaceship spaceship;
     private FilterPostProcessor fpp;
     private BloomFilter bloom;
-    private CameraNode camNode;
-    private Node turbines;
     private int bloomDirection;
     private AudioNode bgAudio;
     private AudioNode spaceshipAudio;
-    private Node spaceshipFront;
-    private Node spaceshipBack;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -152,53 +147,18 @@ public class Main extends SimpleApplication {
         pluto = new Planet("Pluto", 1.5f, new Vector3f(82.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), 0.2f);
         planets[8] = pluto;
         
-        spaceship = assetManager.loadModel("Models/X-WING/X-WING.j3o");
-        spaceshipNode = new Node("SpaceshipNode");
-        spaceship.scale(0.1f);
-        spaceship.rotate(0, FastMath.PI, 0);
-        spaceshipNode.setLocalTranslation(0, 10f, 30f);
-        spaceshipNode.attachChild(spaceship);
-        rootNode.attachChild(spaceshipNode);
-        
-        turbines = new Node("Turbines");
-        turbines.setLocalTranslation(0, 0, 0.4f);
-        
-        ParticleEmitter fire1 = new ParticleEmitter("Emitter", ParticleMesh.Type.Triangle, 30);
-        Material fireMat = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-        fireMat.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-        fire1.setMaterial(fireMat);
-        fire1.setImagesX(2);
-        fire1.setImagesY(2);
-        fire1.setEndColor(new ColorRGBA(1f, 1f, 0f, 1f));   // red
-        fire1.setStartColor(new ColorRGBA(0f, 0f, 1f, 0.5f)); // yellow
-        fire1.getParticleInfluencer().setInitialVelocity(new Vector3f(0, 0, 2));
-        fire1.setStartSize(0.1f);
-        fire1.setEndSize(0.05f);
-        fire1.setGravity(0, 0, 0);
-        fire1.setLowLife(0.1f);
-        fire1.setHighLife(0.2f);
-        fire1.getParticleInfluencer().setVelocityVariation(0.2f);
-        fire1.setLocalTranslation(0.1f, 0, 0);
-        turbines.attachChild(fire1);
-        
-        ParticleEmitter fire2 = fire1.clone();
-        fire2.setLocalTranslation(-0.1f, 0, 0);
-        turbines.attachChild(fire2);
-        
-        spaceshipNode.attachChild(turbines);
-        
-        spaceshipFront = new Node("SpaceshipFront");
-        spaceshipNode.attachChild(spaceshipFront);
-        spaceshipFront.setLocalTranslation(0, 0, -2);
-        
-        spaceshipBack = new Node("SpaceshipBack");
-        spaceshipNode.attachChild(spaceshipBack);
-        spaceshipBack.setLocalTranslation(0, 0, 2);
+        spaceship = new Spaceship("Spaceship", assetManager.loadModel("Models/X-WING/X-WING.j3o"));
+        spaceship.addTurbines(new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md"), 
+                    assetManager.loadTexture("Effects/Explosion/flame.png"));
+        rootNode.attachChild(spaceship);
+        spaceship.setLocalTranslation(0, 20, 40);
+        spaceship.getModel().scale(0.1f);
+        spaceship.getModel().rotate(0, FastMath.PI, 0);
         
         flyCam.setEnabled(false);
         
-        cam.setLocation(new Vector3f(0, 0.5f, 2).add(spaceshipNode.getLocalTranslation()));
-        cam.lookAt(spaceshipNode.getLocalTranslation(), Vector3f.UNIT_Y);
+        cam.setLocation(new Vector3f(0, 0.5f, 2).add(spaceship.getLocalTranslation()));
+        cam.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
@@ -225,7 +185,7 @@ public class Main extends SimpleApplication {
         spaceshipAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
         spaceshipAudio.setLooping(true);
         spaceshipAudio.setVolume(2);
-        spaceshipNode.attachChild(spaceshipAudio);
+        spaceship.attachChild(spaceshipAudio);
         
         bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
         bgAudio.setLooping(true);
@@ -251,14 +211,14 @@ public class Main extends SimpleApplication {
         public void onAction(String name, boolean isPressed, float tpf) {
             if (name.equals("Accelerate")) {
                 if (isPressed) {
-                    for (Spatial child : turbines.getChildren()) {
+                    for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
                         fire.setStartSize(0.2f);
                         fire.setEndSize(0.1f);
                     }
                     spaceshipAudio.play();
                 } else {
-                    for (Spatial child : turbines.getChildren()) {
+                    for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
                         fire.setStartSize(0.1f);
                         fire.setEndSize(0.05f);
@@ -274,27 +234,27 @@ public class Main extends SimpleApplication {
 
         public void onAnalog(String name, float value, float tpf) {
             if (name.equals("Left")) {
-                spaceshipNode.rotate(0, tpf, 0);
+                spaceship.rotate(0, tpf, 0);
             }
             if (name.equals("Right")) {
-                spaceshipNode.rotate(0, -tpf, 0);
+                spaceship.rotate(0, -tpf, 0);
             }
             if (name.equals("Up")) {
-                spaceshipNode.rotate(tpf, 0, 0);
+                spaceship.rotate(tpf, 0, 0);
             }
             if (name.equals("Down")) {
-                spaceshipNode.rotate(-tpf, 0, 0);
+                spaceship.rotate(-tpf, 0, 0);
             }
             if (name.equals("LeftSide")) {
-                spaceshipNode.rotate(0, 0, 2*tpf);
+                spaceship.rotate(0, 0, 2*tpf);
             }
             if (name.equals("RightSide")) {
-                spaceshipNode.rotate(0, 0, -2*tpf);
+                spaceship.rotate(0, 0, -2*tpf);
             }
             if (name.equals("Accelerate")) {
                 Vector3f movement = new Vector3f(0, 0, 0);
-                spaceshipNode.getLocalRotation().mult(new Vector3f(0, 0, -8 * tpf), movement);
-                spaceshipNode.move(movement);
+                spaceship.getLocalRotation().mult(new Vector3f(0, 0, -8 * tpf), movement);
+                spaceship.move(movement);
             }
         }
         
@@ -310,12 +270,12 @@ public class Main extends SimpleApplication {
             if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
             if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
             
-            Vector3f direction = spaceshipBack.getWorldTranslation().subtract(cam.getLocation());
+            Vector3f direction = spaceship.getRear().getWorldTranslation().subtract(cam.getLocation());
             float magnitude = direction.length();
             if (magnitude > 0) {
                 cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 10)));
             }
-            cam.lookAt(spaceshipFront.getWorldTranslation(), Vector3f.UNIT_Y);
+            cam.lookAt(spaceship.getFront().getWorldTranslation(), Vector3f.UNIT_Y);
                 
         }
     }
