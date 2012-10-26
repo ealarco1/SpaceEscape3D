@@ -3,8 +3,6 @@
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
-import com.jme3.effect.ParticleMesh;
-import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -17,12 +15,9 @@ import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
-import com.jme3.scene.CameraNode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.util.SkyFactory;
-import com.sun.j3d.internal.Distance;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -41,12 +36,11 @@ public class Main extends SimpleApplication {
     private BloomFilter bloom;
     private int bloomDirection;
     private AudioNode bgAudio;
-    private AudioNode spaceshipAudio;
 
     public static void main(String[] args) {
         Main app = new Main();        
         app.start();        
-        app.toggleToFullscreen();
+        //app.toggleToFullscreen();
     }
     
     public void toggleToFullscreen() {
@@ -154,6 +148,7 @@ public class Main extends SimpleApplication {
         spaceship.setLocalTranslation(0, 20, 40);
         spaceship.getModel().scale(0.1f);
         spaceship.getModel().rotate(0, FastMath.PI, 0);
+        spaceship.initAudio(new AudioNode(assetManager, "Sound/Fire4.wav", false));
         
         flyCam.setEnabled(false);
         
@@ -181,12 +176,7 @@ public class Main extends SimpleApplication {
         initAudio();
     }
     
-    private void initAudio() {
-        spaceshipAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
-        spaceshipAudio.setLooping(true);
-        spaceshipAudio.setVolume(2);
-        spaceship.attachChild(spaceshipAudio);
-        
+    private void initAudio() {       
         bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
@@ -196,12 +186,12 @@ public class Main extends SimpleApplication {
     
     private void initKeys() {
         inputManager.addMapping("Left",  new KeyTrigger(KeyInput.KEY_A));
-        inputManager.addMapping("Right",   new KeyTrigger(KeyInput.KEY_D));
-        inputManager.addMapping("Up",  new KeyTrigger(KeyInput.KEY_W));
-        inputManager.addMapping("Down",  new KeyTrigger(KeyInput.KEY_S));
-        inputManager.addMapping("LeftSide",  new KeyTrigger(KeyInput.KEY_Q));
-        inputManager.addMapping("RightSide",  new KeyTrigger(KeyInput.KEY_E));
-        inputManager.addMapping("Accelerate",   new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("Right", new KeyTrigger(KeyInput.KEY_D));
+        inputManager.addMapping("Up", new KeyTrigger(KeyInput.KEY_W));
+        inputManager.addMapping("Down", new KeyTrigger(KeyInput.KEY_S));
+        inputManager.addMapping("LeftSide", new KeyTrigger(KeyInput.KEY_Q));
+        inputManager.addMapping("RightSide", new KeyTrigger(KeyInput.KEY_E));
+        inputManager.addMapping("Accelerate", new KeyTrigger(KeyInput.KEY_SPACE));
     
         inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
         inputManager.addListener(actionListener, new String[]{"Accelerate"});
@@ -216,14 +206,14 @@ public class Main extends SimpleApplication {
                         fire.setStartSize(0.2f);
                         fire.setEndSize(0.1f);
                     }
-                    spaceshipAudio.play();
+                    spaceship.getAccelAudio().play();
                 } else {
                     for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
                         fire.setStartSize(0.1f);
                         fire.setEndSize(0.05f);
                     }
-                    spaceshipAudio.stop();
+                    spaceship.getAccelAudio().stop();
                 }
             }
         }

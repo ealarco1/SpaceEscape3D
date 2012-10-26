@@ -1,6 +1,7 @@
 
 package objects;
 
+import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.material.Material;
@@ -16,6 +17,7 @@ public class Spaceship extends Node {
     private Node front;
     private Node rear;
     private Node turbines;
+    private AudioNode accelAudio;
     
     public Spaceship(String name, Spatial model) {
         super(name);
@@ -27,6 +29,13 @@ public class Spaceship extends Node {
         attachChild(rear);
         front.setLocalTranslation(0, 0, -2);
         rear.setLocalTranslation(0, 0, 2);
+    }
+    
+    public void initAudio(AudioNode accelAudio) {
+        accelAudio.setLooping(true);
+        accelAudio.setVolume(2);
+        this.accelAudio = accelAudio;
+        attachChild(this.accelAudio);
     }
     
     public void addTurbines(Material material, Texture texture) {
@@ -55,6 +64,10 @@ public class Spaceship extends Node {
         turbines.attachChild(fire2);
         
         attachChild(turbines);
+    }    
+
+    public AudioNode getAccelAudio() {
+        return accelAudio;
     }
     
     public Node getTurbines() {
