@@ -310,7 +310,7 @@ public class Main extends SimpleApplication {
         Vector3f direction = spaceship.getRear().getWorldTranslation().subtract(cam.getLocation());
         float magnitude = direction.length();
         if (magnitude > 0) {
-            cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 10)));
+            cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 2)));
         }
         cam.lookAt(spaceship.getFront().getWorldTranslation(), Vector3f.UNIT_Y);
         
