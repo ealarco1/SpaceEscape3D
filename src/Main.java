@@ -4,6 +4,7 @@ import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
+import com.jme3.input.ChaseCamera;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -12,6 +13,7 @@ import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
 import com.jme3.post.filters.BloomFilter;
@@ -21,6 +23,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.CameraControl.ControlDirection;
 import com.jme3.util.SkyFactory;
+import com.sun.j3d.internal.Distance;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -42,6 +45,7 @@ public class Main extends SimpleApplication {
     private int bloomDirection;
     private AudioNode bgAudio;
     private AudioNode spaceshipAudio;
+    Node spaceshipFront;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -182,13 +186,14 @@ public class Main extends SimpleApplication {
         
         spaceshipNode.attachChild(turbines);
         
+        spaceshipFront = new Node("SpaceshipFront");
+        spaceshipNode.attachChild(spaceshipFront);
+        spaceshipFront.setLocalTranslation(0, 0, -1);
+        
         flyCam.setEnabled(false);
         
-        camNode = new CameraNode("CameraNode", cam);
-        camNode.setControlDir(ControlDirection.SpatialToCamera);
-        spaceshipNode.attachChild(camNode);
-        camNode.setLocalTranslation(new Vector3f(0, 0.5f, 2));
-        camNode.lookAt(spaceshipNode.getLocalTranslation(), Vector3f.UNIT_Y);
+        cam.setLocation(new Vector3f(0, 0.5f, 2).add(spaceshipNode.getLocalTranslation()));
+        cam.lookAt(spaceshipNode.getLocalTranslation(), Vector3f.UNIT_Y);
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
@@ -299,6 +304,14 @@ public class Main extends SimpleApplication {
             bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
             if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
             if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
+            
+            Vector3f direction = spaceshipNode.getWorldTranslation().subtract(cam.getLocation());
+            float magnitude = direction.length();
+            cam.lookAt(spaceshipFront.getWorldTranslation(), Vector3f.UNIT_Y);
+            if (magnitude > 2) {
+                cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude * magnitude / 200)));
+            }
+                
         }
     }
 
