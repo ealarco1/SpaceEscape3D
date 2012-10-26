@@ -7,6 +7,7 @@ import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
 import com.jme3.input.controls.KeyTrigger;
+import com.jme3.light.AmbientLight;
 import com.jme3.light.PointLight;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -21,6 +22,7 @@ import com.jme3.util.SkyFactory;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import objects.Asteroid;
 import objects.Planet;
 import objects.Spaceship;
 
@@ -29,6 +31,8 @@ import objects.Spaceship;
  */
 public class Main extends SimpleApplication {
     
+    public static final int MAX_ASTEROIDS = 30;
+    
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
     private Planet[] planets;
     private Spaceship spaceship;
@@ -36,6 +40,7 @@ public class Main extends SimpleApplication {
     private BloomFilter bloom;
     private int bloomDirection;
     private AudioNode bgAudio;
+    private Node asteroids;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -161,6 +166,9 @@ public class Main extends SimpleApplication {
         sunLight.setRadius(100f);
         rootNode.addLight(sunLight);
         
+        AmbientLight ambient = new AmbientLight();
+        rootNode.addLight(ambient);
+        
         fpp = new FilterPostProcessor(assetManager);
         bloom = new BloomFilter(BloomFilter.GlowMode.Objects); 
         bloom.setExposurePower(30f);
@@ -172,8 +180,12 @@ public class Main extends SimpleApplication {
         
         bloomDirection = 1;
         
+        asteroids = new Node("Comets");
+        rootNode.attachChild(asteroids);
+        
         initKeys();
-        initAudio();
+        initAudio();      
+        
     }
     
     private void initAudio() {       
@@ -249,24 +261,73 @@ public class Main extends SimpleApplication {
         }
         
     };
+    
+    public void generateRandomAsteroid() {
+        Material asteroidMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        asteroidMaterial.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Asteroid/Solid.png"));
+        asteroidMaterial.setTexture("NormalMap", assetManager.loadTexture("Textures/Asteroid/Normal.png"));
+        
+        Asteroid asteroid = new Asteroid("Asteroid", assetManager.loadModel("Models/Asteroid.j3o"), asteroidMaterial);
+        
+        asteroid.getModel().scale((float)Math.random() / 2);
+        
+        if (Math.random() < 0.05) {    
+            asteroid.getModel().scale((float)Math.random() / 2);
+            asteroid.addTrail(new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md"), 
+                    assetManager.loadTexture("Effects/Explosion/flame.png"));
+            asteroid.setSpeed((int)(Math.random() * 4) + 10);
+        } else {
+            asteroid.setSpeed((int)(Math.random() * 4) + 4);            
+        }
+        
+        rootNode.attachChild(asteroid);
+        
+        float theta = (float) (2 * FastMath.PI * Math.random());
+        float phi = (float)(2 * FastMath.PI * Math.random());
+        float r = 120;
+        
+        float x = r * FastMath.cos(theta) * FastMath.sin(phi);
+        float y = r * FastMath.sin(theta) * FastMath.cos(phi);
+        float z = r * FastMath.cos(phi);
+        
+        asteroid.setLocalTranslation(x, y, z);
+        asteroid.setDirection(planets[2].getGeom().getWorldTranslation().subtract(asteroid.getLocalTranslation()).normalize());
+        asteroid.setRotation(new Vector3f((float)Math.random(), (float)Math.random(), (float)Math.random()).normalize());
+        asteroids.attachChild(asteroid);
+    }
 
     @Override
     public void simpleUpdate(float tpf) {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationVel()*tpf);
             planet.getPivot().rotate(0, planet.getTranslationVel()*tpf, 0);
-            
-            bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
-            if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
-            if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
-            
-            Vector3f direction = spaceship.getRear().getWorldTranslation().subtract(cam.getLocation());
-            float magnitude = direction.length();
-            if (magnitude > 0) {
-                cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 10)));
-            }
-            cam.lookAt(spaceship.getFront().getWorldTranslation(), Vector3f.UNIT_Y);
                 
+        }
+        
+        bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
+        if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
+        if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
+        Vector3f direction = spaceship.getRear().getWorldTranslation().subtract(cam.getLocation());
+        float magnitude = direction.length();
+        if (magnitude > 0) {
+            cam.setLocation(cam.getLocation().add(direction.normalize().mult(tpf * magnitude * magnitude / 10)));
+        }
+        cam.lookAt(spaceship.getFront().getWorldTranslation(), Vector3f.UNIT_Y);
+        
+        for (Spatial spatial : asteroids.getChildren()) {
+            if (spatial.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
+                asteroids.detachChild(spatial);
+                continue;
+            }
+            Asteroid asteroid = (Asteroid) spatial;
+            float speedMagnitude = tpf * asteroid.getSpeed();
+            asteroid.move(asteroid.getDirection().mult(speedMagnitude));
+            Vector3f rotationVector = asteroid.getRotation().mult(speedMagnitude / 4);
+            asteroid.getModel().rotate(rotationVector.x, rotationVector.y, rotationVector.z);
+        }
+        
+        if (Math.random() < 0.01 && asteroids.getChildren().size() < MAX_ASTEROIDS) {
+            generateRandomAsteroid();
         }
     }
 
