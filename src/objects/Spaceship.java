@@ -17,26 +17,28 @@ public class Spaceship extends Node {
     private Node front;
     private Node rear;
     private Node turbines;
-    private AudioNode accelAudio;
+    private Node sounds;
     private Material laserMaterial;
     
     public Spaceship(String name, Spatial model) {
         super(name);
         this.model = model;
         attachChild(model);
+        
         front = new Node("SpaceshipFront");
         rear = new Node("SpaceshipRear");
         attachChild(front);
         attachChild(rear);
         front.setLocalTranslation(0, 0, -2);
         rear.setLocalTranslation(0, 0, 2);
+        sounds = new Node("Sounds");
+        
+        attachChild(sounds);
     }
     
-    public void initAudio(AudioNode accelAudio) {
-        accelAudio.setLooping(true);
-        accelAudio.setVolume(2);
-        this.accelAudio = accelAudio;
-        attachChild(this.accelAudio);
+    public void initAudio(String name, AudioNode audio) {
+        audio.setName(name);
+        sounds.attachChild(audio);
     }
     
     public void addTurbines(Material material, Texture texture) {
@@ -77,8 +79,8 @@ public class Spaceship extends Node {
         return laser;
     }  
 
-    public AudioNode getAccelAudio() {
-        return accelAudio;
+    public AudioNode getSound(String name) {
+        return (AudioNode)sounds.getChild(name);
     }
     
     public Node getTurbines() {

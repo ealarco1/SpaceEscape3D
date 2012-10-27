@@ -155,7 +155,17 @@ public class Main extends SimpleApplication {
         spaceship.setLocalTranslation(0, 20, 40);
         spaceship.getModel().scale(0.1f);
         spaceship.getModel().rotate(0, FastMath.PI, 0);
-        spaceship.initAudio(new AudioNode(assetManager, "Sound/Fire4.wav", false));
+        
+        
+        AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
+        accelAudio.setLooping(true);
+        accelAudio.setVolume(2);
+        spaceship.initAudio("Accelerate", accelAudio);
+        
+        AudioNode laserAudio = new AudioNode(assetManager, "Sound/Laser.wav", false);
+        accelAudio.setLooping(false);
+        accelAudio.setVolume(1);
+        spaceship.initAudio("Laser", laserAudio);
         
         Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         laserMaterial.setColor("GlowColor", ColorRGBA.Green);
@@ -231,19 +241,20 @@ public class Main extends SimpleApplication {
                         fire.setStartSize(0.2f);
                         fire.setEndSize(0.1f);
                     }
-                    spaceship.getAccelAudio().play();
+                    spaceship.getSound("Accelerate").play();
                 } else {
                     for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
                         fire.setStartSize(0.1f);
                         fire.setEndSize(0.05f);
                     }
-                    spaceship.getAccelAudio().stop();
+                    spaceship.getSound("Accelerate").stop();
                 }
             }
             
             if (name.equals("Shoot") && isPressed) {
                 lasers.attachChild(spaceship.shoot());
+                spaceship.getSound("Laser").playInstance();
             }
         }
         
