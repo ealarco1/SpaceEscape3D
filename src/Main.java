@@ -156,17 +156,6 @@ public class Main extends SimpleApplication {
         spaceship.getModel().scale(0.1f);
         spaceship.getModel().rotate(0, FastMath.PI, 0);
         
-        
-        AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
-        accelAudio.setLooping(true);
-        accelAudio.setVolume(2);
-        spaceship.initAudio("Accelerate", accelAudio);
-        
-        AudioNode laserAudio = new AudioNode(assetManager, "Sound/Laser.wav", false);
-        accelAudio.setLooping(false);
-        accelAudio.setVolume(1);
-        spaceship.initAudio("Laser", laserAudio);
-        
         Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         laserMaterial.setColor("GlowColor", ColorRGBA.Green);
         laserMaterial.setColor("Ambient", ColorRGBA.Green);
@@ -215,7 +204,17 @@ public class Main extends SimpleApplication {
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
         rootNode.attachChild(bgAudio);
-        bgAudio.play();
+        bgAudio.play();        
+        
+        AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
+        accelAudio.setLooping(true);
+        accelAudio.setVolume(10);
+        spaceship.initAudio("Accelerate", accelAudio);
+        
+        AudioNode laserAudio = new AudioNode(assetManager, "Sound/Laser.wav", false);
+        laserAudio.setLooping(false);
+        laserAudio.setVolume(1);
+        spaceship.initAudio("Laser", laserAudio);
     }
     
     private void initKeys() {
@@ -242,6 +241,7 @@ public class Main extends SimpleApplication {
                         fire.setEndSize(0.1f);
                     }
                     spaceship.getSound("Accelerate").play();
+                    System.out.println(spaceship.getSound("Accelerate").isLooping());
                 } else {
                     for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
@@ -333,8 +333,13 @@ public class Main extends SimpleApplication {
         }
         
         bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
-        if (bloom.getBloomIntensity() > 4) bloomDirection = -1;
-        if (bloom.getBloomIntensity() < 2) bloomDirection = 1;
+        if (bloom.getBloomIntensity() > 4) {
+            bloomDirection = -1;
+        }
+        if (bloom.getBloomIntensity() < 2) {
+            bloomDirection = 1;
+        }
+        
         Vector3f direction = spaceship.getRear().getWorldTranslation().subtract(cam.getLocation());
         float magnitude = direction.length();
         if (magnitude > 0) {
