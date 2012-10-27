@@ -43,6 +43,7 @@ public class Main extends SimpleApplication {
     private AudioNode bgAudio;
     private Node asteroids;
     private Node lasers;
+    private float noComet;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -190,6 +191,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars5.jpeg", true));
         
         bloomDirection = 1;
+        noComet = 0;
         
         asteroids = new Node("Comets");
         rootNode.attachChild(asteroids);
@@ -299,13 +301,15 @@ public class Main extends SimpleApplication {
         
         asteroid.getModel().scale((float)Math.random() / 2);
         
-        if (Math.random() < 0.05) {    
+        if (Math.random() * noComet < 0.05) {    
             asteroid.getModel().scale((float)Math.random() / 2);
             asteroid.addTrail(new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md"), 
                     assetManager.loadTexture("Effects/Explosion/flame.png"));
             asteroid.setSpeed((int)(Math.random() * 4) + 10);
+            noComet = 1;
         } else {
-            asteroid.setSpeed((int)(Math.random() * 4) + 4);            
+            asteroid.setSpeed((int)(Math.random() * 4) + 4);  
+            noComet -= 0.05;
         }
         
         rootNode.attachChild(asteroid);
