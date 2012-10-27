@@ -193,7 +193,7 @@ public class Main extends SimpleApplication {
         bloomDirection = 1;
         noComet = 1;
         
-        asteroids = new Node("Comets");
+        asteroids = new Node("Asteroids");
         rootNode.attachChild(asteroids);
         
         initKeys();
