@@ -18,6 +18,7 @@ public class Spaceship extends Node {
     private Node rear;
     private Node turbines;
     private AudioNode accelAudio;
+    private Material laserMaterial;
     
     public Spaceship(String name, Spatial model) {
         super(name);
@@ -64,7 +65,17 @@ public class Spaceship extends Node {
         turbines.attachChild(fire2);
         
         attachChild(turbines);
-    }    
+    }  
+    
+    public Laser shoot() {
+        Laser laser = new Laser("Laser", laserMaterial);
+        Vector3f direction = new Vector3f(0, 0, 0);
+        getLocalRotation().mult(new Vector3f(0, 0, -1), direction);
+        laser.setDirection(direction);
+        laser.setLocalTranslation(getWorldTranslation());
+        laser.setLocalRotation(getWorldRotation());
+        return laser;
+    }  
 
     public AudioNode getAccelAudio() {
         return accelAudio;
@@ -88,6 +99,14 @@ public class Spaceship extends Node {
 
     public Node getRear() {
         return rear;
+    }
+
+    public Material getLaserMaterial() {
+        return laserMaterial;
+    }
+
+    public void setLaserMaterial(Material laserMaterial) {
+        this.laserMaterial = laserMaterial;
     }
     
 }

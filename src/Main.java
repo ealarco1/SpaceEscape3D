@@ -23,6 +23,7 @@ import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import objects.Asteroid;
+import objects.Laser;
 import objects.Planet;
 import objects.Spaceship;
 
@@ -41,6 +42,7 @@ public class Main extends SimpleApplication {
     private int bloomDirection;
     private AudioNode bgAudio;
     private Node asteroids;
+    private Node lasers;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -155,6 +157,16 @@ public class Main extends SimpleApplication {
         spaceship.getModel().rotate(0, FastMath.PI, 0);
         spaceship.initAudio(new AudioNode(assetManager, "Sound/Fire4.wav", false));
         
+        Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+        laserMaterial.setColor("GlowColor", ColorRGBA.Green);
+        laserMaterial.setColor("Ambient", ColorRGBA.Green);
+        laserMaterial.setColor("Diffuse", ColorRGBA.Green);        
+        laserMaterial.setBoolean("UseMaterialColors", true);
+        spaceship.setLaserMaterial(laserMaterial);
+        
+        lasers = new Node("Lasers");
+        rootNode.attachChild(lasers);
+        
         flyCam.setEnabled(false);
         
         cam.setLocation(new Vector3f(0, 0.5f, 2).add(spaceship.getLocalTranslation()));
@@ -204,9 +216,10 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("LeftSide", new KeyTrigger(KeyInput.KEY_Q));
         inputManager.addMapping("RightSide", new KeyTrigger(KeyInput.KEY_E));
         inputManager.addMapping("Accelerate", new KeyTrigger(KeyInput.KEY_SPACE));
+        inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RSHIFT));
     
         inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
-        inputManager.addListener(actionListener, new String[]{"Accelerate"});
+        inputManager.addListener(actionListener, new String[]{"Accelerate", "Shoot"});
     }
     
     private ActionListener actionListener = new ActionListener() {
@@ -227,6 +240,10 @@ public class Main extends SimpleApplication {
                     }
                     spaceship.getAccelAudio().stop();
                 }
+            }
+            
+            if (name.equals("Shoot") && isPressed) {
+                lasers.attachChild(spaceship.shoot());
             }
         }
         
@@ -328,6 +345,15 @@ public class Main extends SimpleApplication {
         
         if (Math.random() < 0.01 && asteroids.getChildren().size() < MAX_ASTEROIDS) {
             generateRandomAsteroid();
+        }
+        
+        for (Spatial spatial : lasers.getChildren()) {
+            if (spatial.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
+                lasers.detachChild(spatial);
+                continue;
+            }
+            Laser laser = (Laser) spatial;
+            laser.move(laser.getDirection().mult(laser.getSpeed()));
         }
     }
 
