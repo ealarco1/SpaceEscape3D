@@ -191,7 +191,7 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars5.jpeg", true));
         
         bloomDirection = 1;
-        noComet = 0;
+        noComet = 1;
         
         asteroids = new Node("Comets");
         rootNode.attachChild(asteroids);
