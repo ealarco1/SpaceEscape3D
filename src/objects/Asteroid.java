@@ -1,6 +1,10 @@
 
 package objects;
 
+import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.material.Material;
@@ -18,6 +22,7 @@ public class Asteroid extends Node {
     private int speed;
     private Node trail;
     private Vector3f rotation;
+    private RigidBodyControl rbc;
     
     public Asteroid(String name, Spatial model, Material material) {
         super(name);
@@ -27,6 +32,15 @@ public class Asteroid extends Node {
         rotation = Vector3f.ZERO;
         TangentBinormalGenerator.generate(model);
         attachChild(this.model);
+    }
+    
+    public void registerPhysics(PhysicsSpace ps) {
+        CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(model);
+        rbc = new RigidBodyControl(collisionShape, 80);
+        rbc.setLinearVelocity(direction.mult(speed));
+        rbc.setAngularVelocity(rotation);
+        addControl(rbc);
+        ps.add(rbc);
     }
     
     public void addTrail(Material material, Texture texture) {

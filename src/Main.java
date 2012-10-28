@@ -362,6 +362,7 @@ public class Main extends SimpleApplication {
         asteroid.setLocalTranslation(x, y, z);
         asteroid.setDirection(planets[2].getGeom().getWorldTranslation().subtract(asteroid.getLocalTranslation()).normalize());
         asteroid.setRotation(new Vector3f((float)Math.random(), (float)Math.random(), (float)Math.random()).normalize());
+        asteroid.registerPhysics(bap.getPhysicsSpace());
         asteroids.attachChild(asteroid);
     }
 
@@ -420,13 +421,7 @@ public class Main extends SimpleApplication {
         for (Spatial spatial : asteroids.getChildren()) {
             if (spatial.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
                 asteroids.detachChild(spatial);
-                continue;
             }
-            Asteroid asteroid = (Asteroid) spatial;
-            float speedMagnitude = tpf * asteroid.getSpeed();
-            asteroid.move(asteroid.getDirection().mult(speedMagnitude));
-            Vector3f rotationVector = asteroid.getRotation().mult(speedMagnitude / 4);
-            asteroid.getModel().rotate(rotationVector.x, rotationVector.y, rotationVector.z);
         }
         
         if (Math.random() < 0.01 && asteroids.getChildren().size() < MAX_ASTEROIDS) {

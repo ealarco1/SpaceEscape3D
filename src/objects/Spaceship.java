@@ -44,10 +44,9 @@ public class Spaceship extends Node {
         attachChild(sounds);
     }
     
-    public void registerPhysics(PhysicsSpace ps) {        
+    public void registerPhysics(PhysicsSpace ps) {
         CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(model);
-        rbc = new RigidBodyControl(collisionShape, 1); 
-        rbc.setFriction(1);
+        rbc = new RigidBodyControl(collisionShape, 1);
         addControl(rbc);
         ps.add(rbc);
     }

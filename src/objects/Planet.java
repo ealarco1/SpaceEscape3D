@@ -46,7 +46,7 @@ public class Planet extends Node {
     
     public void registerPhysics(PhysicsSpace ps) {        
         CollisionShape collisionShape = new SphereCollisionShape(radius);
-        rbc = new RigidBodyControl(collisionShape, 30);
+        rbc = new RigidBodyControl(collisionShape, 100);
         rbc.setKinematic(true);
         geom.addControl(rbc);
         ps.add(rbc);
