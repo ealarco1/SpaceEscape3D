@@ -3,7 +3,10 @@
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
 import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.collision.PhysicsCollisionEvent;
+import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.AnalogListener;
@@ -23,6 +26,7 @@ import com.jme3.util.SkyFactory;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.Point;
 import objects.Asteroid;
 import objects.Laser;
 import objects.Planet;
@@ -31,7 +35,7 @@ import objects.Spaceship;
 /**
  * @author Esteban Alarcon Ceballos y Enrique Arango Lyons
  */
-public class Main extends SimpleApplication {
+public class Main extends SimpleApplication implements PhysicsCollisionListener {
     
     public static final int MAX_ASTEROIDS = 30;
     
@@ -73,6 +77,7 @@ public class Main extends SimpleApplication {
         bap = new BulletAppState();
         stateManager.attach(bap);
         bap.getPhysicsSpace().setGravity(Vector3f.ZERO);
+        bap.getPhysicsSpace().addCollisionListener(this);
         
         planets = new Planet[9];
         
@@ -441,5 +446,31 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleRender(RenderManager rm) {
         //TODO: add render code
+    }
+
+    public void collision(PhysicsCollisionEvent event) {
+        if(event.getNodeA().getName().equals("Spaceship")) {
+            final Spatial sp = event.getNodeA();
+            guiNode.detachAllChildren();
+            guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+            BitmapText helloText = new BitmapText(guiFont, false);
+            helloText.setSize(50);
+            helloText.setColor(ColorRGBA.Red);
+            helloText.setText("La nave chocó algo");
+            Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+            helloText.setLocalTranslation(p.x-200,p.y, 0);
+            guiNode.attachChild(helloText);
+        } else if(event.getNodeB().getName().equals("Spaceship")) {
+            final Spatial sp = event.getNodeB();
+            guiNode.detachAllChildren();
+            guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+            BitmapText helloText = new BitmapText(guiFont, false);
+            helloText.setSize(50);
+            helloText.setColor(ColorRGBA.Red);
+            helloText.setText("Algo chocó la nave");
+            Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
+            helloText.setLocalTranslation(p.x-200,p.y, 0);
+            guiNode.attachChild(helloText);
+        }
     }
 }
