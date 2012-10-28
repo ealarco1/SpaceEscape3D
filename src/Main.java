@@ -2,6 +2,7 @@
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -34,6 +35,7 @@ public class Main extends SimpleApplication {
     
     public static final int MAX_ASTEROIDS = 30;
     
+    private BulletAppState bap;
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
     private Planet[] planets;
     private Spaceship spaceship;
@@ -48,7 +50,7 @@ public class Main extends SimpleApplication {
     public static void main(String[] args) {
         Main app = new Main();        
         app.start();        
-        //app.toggleToFullscreen();
+        app.toggleToFullscreen();
     }
     
     public void toggleToFullscreen() {
@@ -65,6 +67,11 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
+        bap = new BulletAppState();
+        stateManager.attach(bap);
+        bap.getPhysicsSpace().setGravity(Vector3f.ZERO);
+        bap.getPhysicsSpace().enableDebug(assetManager);
+        
         planets = new Planet[9];
         
         Material mat10 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");        
@@ -72,90 +79,110 @@ public class Main extends SimpleApplication {
         mat10.setTexture("GlowMap", assetManager.loadTexture("Textures/Sun.jpg"));
         mat10.setColor("Specular", ColorRGBA.White);
         mat10.setBoolean("UseAlpha", true);
-        sun = new Planet("Sun", 5f, null, mat10, null, 0, 0);
-        rootNode.attachChild(sun.getGeom());
+        sun = new Planet("Sun", 5f, mat10);
+        sun.registerPhysics(bap.getPhysicsSpace());
+        rootNode.attachChild(sun);
         
         Material mat1 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat1.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Mercury.jpg"));
         mat1.setColor("Specular", ColorRGBA.White);
-        Node p1 = new Node();
-        rootNode.attachChild(p1);
-        mercury = new Planet("Mercury", 2f, new Vector3f(16.0f, 0f, -6.0f), mat1, p1, (float) Math.random(), 0.76f);
+        mercury = new Planet("Mercury", 2f, mat1);
+        mercury.setInitLocation(new Vector3f(16.0f, 0f, -6.0f));
+        mercury.setRotationSpeed((float)Math.random());
+        mercury.setTranslationSpeed(0.76f);
+        mercury.registerPhysics(bap.getPhysicsSpace());
         planets[0] = mercury;
+        rootNode.attachChild(mercury);
         
         Material mat2 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat2.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Venus.jpg"));
         mat2.setColor("Specular", ColorRGBA.White);
-        Node p2 = new Node();
-        rootNode.attachChild(p2);
-        venus = new Planet("Venus", 2.6f, new Vector3f(20.0f, 0f, -6.0f), mat2, p2, (float) Math.random(), 0.65f);
+        venus = new Planet("Venus", 2.6f, mat2);
+        venus.setInitLocation(new Vector3f(20.0f, 0f, -6.0f));
+        venus.setRotationSpeed((float)Math.random());
+        venus.setTranslationSpeed(0.65f);
         planets[1] = venus;
+        rootNode.attachChild(venus);
         
         Material mat3 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat3.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Earth/Color.jpg"));
         mat3.setTexture("ParallaxMap", assetManager.loadTexture("Textures/Earth/Bump.jpg"));
-        mat3.setTexture("SpecularMap", assetManager.loadTexture("Textures/Earth/Specular.jpg"));        
-        //mat3.setTexture("GlowMap", assetManager.loadTexture("Textures/Earth/Lights3.jpeg"));
-        Node p3 = new Node();
-        rootNode.attachChild(p3);
-        earth = new Planet("Earth", 2.7f, new Vector3f(28.0f, 0f, -6.0f), mat3, p3, (float) Math.random(), 0.6f);
+        mat3.setTexture("SpecularMap", assetManager.loadTexture("Textures/Earth/Specular.jpg"));
+        earth = new Planet("Earth", 2.7f, mat3);
+        earth.setInitLocation(new Vector3f(28.0f, 0f, -6.0f));
+        earth.setRotationSpeed((float)Math.random());
+        earth.setTranslationSpeed(0.6f);
         planets[2] = earth;
+        rootNode.attachChild(earth);
         
         Material mat4 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat4.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Mars.jpg"));
         mat4.setColor("Specular", ColorRGBA.White);
-        Node p4 = new Node();
-        rootNode.attachChild(p4);
-        mars = new Planet("Mars", 2.5f, new Vector3f(35.0f, 0f, -6.0f), mat4, p4, (float) Math.random(), 0.56f);
+        mars = new Planet("Mars", 2.5f, mat4);
+        mars.setInitLocation(new Vector3f(35.0f, 0f, -6.0f));
+        mars.setRotationSpeed((float)Math.random());
+        mars.setTranslationSpeed(0.56f);
         planets[3] = mars;
+        rootNode.attachChild(mars);
         
         Material mat5 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat5.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Jupiter.jpg"));
-        mat5.setColor("Specular", ColorRGBA.White);        
-        Node p5 = new Node();
-        rootNode.attachChild(p5);
-        jupiter = new Planet("Jupiter", 3.1f, new Vector3f(49.0f, 0f, -6.0f), mat5, p5, (float) Math.random(), 0.5f);
+        mat5.setColor("Specular", ColorRGBA.White);
+        jupiter = new Planet("Jupiter", 3.1f, mat5);
+        jupiter.setInitLocation(new Vector3f(49.0f, 0f, -6.0f));
+        jupiter.setRotationSpeed((float)Math.random());
+        jupiter.setTranslationSpeed(0.5f);
         planets[4] = jupiter;
+        rootNode.attachChild(jupiter);
         
         Material mat6 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat6.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Saturn.jpg"));
         mat6.setColor("Specular", ColorRGBA.White);
-        Node p6 = new Node();
-        rootNode.attachChild(p6);
-        saturn = new Planet("Saturn", 2.9f, new Vector3f(57.0f, 0f, -6.0f), mat6, p6, (float) Math.random(), 0.44f);
+        saturn = new Planet("Saturn", 2.9f, mat6);
+        saturn.setInitLocation(new Vector3f(57.0f, 0f, -6.0f));
+        saturn.setRotationSpeed((float)Math.random());
+        saturn.setTranslationSpeed(0.44f);
         planets[5] = saturn;
+        rootNode.attachChild(saturn);
         
         Material mat7 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat7.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Uranus.jpg"));
         mat7.setColor("Specular", ColorRGBA.White);
-        Node p7 = new Node();
-        rootNode.attachChild(p7);
-        uranus = new Planet("Uranus", 2.8f, new Vector3f(65.0f, 0f, -6.0f), mat7, p7, (float) Math.random(), 0.4f);
+        uranus = new Planet("Uranus", 2.8f, mat7);
+        uranus.setInitLocation(new Vector3f(65.0f, 0f, -6.0f));
+        uranus.setRotationSpeed((float)Math.random());
+        uranus.setTranslationSpeed(0.4f);
         planets[6] = uranus;
+        rootNode.attachChild(uranus);
         
         Material mat8 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat8.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Neptune.jpg"));
         mat8.setColor("Specular", ColorRGBA.White);
-        Node p8 = new Node();
-        rootNode.attachChild(p8);
-        neptune = new Planet("Neptune", 2.65f, new Vector3f(75.0f, 0f, -6.0f), mat8, p8, (float) Math.random(), 0.34f);
+        neptune = new Planet("Neptune", 2.65f, mat8);
+        neptune.setInitLocation(new Vector3f(75.0f, 0f, -6.0f));
+        neptune.setRotationSpeed((float)Math.random());
+        neptune.setTranslationSpeed(0.34f);
         planets[7] = neptune;
+        rootNode.attachChild(neptune);
         
         Material mat9 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         mat9.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Pluto.jpg"));
         mat9.setColor("Specular", ColorRGBA.White);
-        Node p9 = new Node();
-        rootNode.attachChild(p9);
-        pluto = new Planet("Pluto", 1.5f, new Vector3f(82.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), 0.2f);
+        pluto = new Planet("Pluto", 1.5f, mat9);
+        pluto.setInitLocation(new Vector3f(82.0f, 0f, -6.0f));
+        pluto.setRotationSpeed((float)Math.random());
+        pluto.setTranslationSpeed(0.2f);
         planets[8] = pluto;
+        rootNode.attachChild(pluto);
         
         spaceship = new Spaceship("Spaceship", assetManager.loadModel("Models/X-WING/X-WING.j3o"));
         spaceship.addTurbines(new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md"), 
                     assetManager.loadTexture("Effects/Explosion/flame.png"));
-        rootNode.attachChild(spaceship);
         spaceship.setLocalTranslation(0, 20, 40);
         spaceship.getModel().scale(0.1f);
         spaceship.getModel().rotate(0, FastMath.PI, 0);
+        spaceship.registerPhysics(bap.getPhysicsSpace());
+        rootNode.attachChild(spaceship);
         
         Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         laserMaterial.setColor("GlowColor", ColorRGBA.Green);
@@ -243,7 +270,6 @@ public class Main extends SimpleApplication {
                         fire.setEndSize(0.1f);
                     }
                     spaceship.getSound("Accelerate").play();
-                    System.out.println(spaceship.getSound("Accelerate").isLooping());
                 } else {
                     for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
@@ -330,11 +356,11 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        for(Planet planet : planets){
-            planet.getGeom().rotate(0, 0, planet.getRotationVel()*tpf);
-            planet.getPivot().rotate(0, planet.getTranslationVel()*tpf, 0);
+        /*for(Planet planet : planets){
+            planet.getGeom().rotate(0, 0, planet.getRotationSpeed()*tpf);
+            planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);
                 
-        }
+        }*/
         
         bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
         if (bloom.getBloomIntensity() > 4) {

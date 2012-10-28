@@ -2,6 +2,10 @@
 package objects;
 
 import com.jme3.audio.AudioNode;
+import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.effect.ParticleMesh;
 import com.jme3.material.Material;
@@ -19,9 +23,11 @@ public class Spaceship extends Node {
     private Node turbines;
     private Node sounds;
     private Material laserMaterial;
+    private RigidBodyControl rbc;
     
     public Spaceship(String name, Spatial model) {
         super(name);
+        
         this.model = model;
         attachChild(model);
         
@@ -31,9 +37,16 @@ public class Spaceship extends Node {
         attachChild(rear);
         front.setLocalTranslation(0, 0, -2);
         rear.setLocalTranslation(0, 0, 2);
-        sounds = new Node("Sounds");
         
+        sounds = new Node("Sounds");        
         attachChild(sounds);
+    }
+    
+    public void registerPhysics(PhysicsSpace ps) {        
+        CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(model);
+        rbc = new RigidBodyControl(collisionShape, 1);
+        addControl(rbc);
+        ps.add(rbc);
     }
     
     public void initAudio(String name, AudioNode audio) {
@@ -67,7 +80,7 @@ public class Spaceship extends Node {
         turbines.attachChild(fire2);
         
         attachChild(turbines);
-    }  
+    }
     
     public Laser shoot() {
         Laser laser = new Laser("Laser", laserMaterial);
