@@ -2,6 +2,7 @@ package objects;
 
 import com.jme3.bullet.PhysicsSpace;
 import com.jme3.bullet.collision.shapes.CollisionShape;
+import com.jme3.bullet.collision.shapes.SphereCollisionShape;
 import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.bullet.util.CollisionShapeFactory;
 import com.jme3.material.Material;
@@ -18,12 +19,15 @@ public class Planet extends Node {
 
     private Geometry geom;
     private Node pivot;
+    private float radius;
     private float rotationSpeed;
     private float translationSpeed;
     private RigidBodyControl rbc;
     
     public Planet(String name, float radius, Material mat) {
         super(name);
+        
+        this.radius = radius;
         
         geom = new Geometry(name, new Sphere(32, 32, radius));
         geom.setMaterial(mat);
@@ -41,7 +45,7 @@ public class Planet extends Node {
     }
     
     public void registerPhysics(PhysicsSpace ps) {        
-        CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(geom);
+        CollisionShape collisionShape = new SphereCollisionShape(radius);
         rbc = new RigidBodyControl(collisionShape, 30);
         rbc.setKinematic(true);
         geom.addControl(rbc);

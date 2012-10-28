@@ -17,6 +17,8 @@ import com.jme3.texture.Texture;
 
 public class Spaceship extends Node {
     
+    public static final float MAX_SPEED = 4;
+    
     private Spatial model;
     private Node front;
     private Node rear;
@@ -35,7 +37,7 @@ public class Spaceship extends Node {
         rear = new Node("SpaceshipRear");
         attachChild(front);
         attachChild(rear);
-        front.setLocalTranslation(0, 0, -2);
+        front.setLocalTranslation(0, 0, -2);        
         rear.setLocalTranslation(0, 0, 2);
         
         sounds = new Node("Sounds");        
@@ -44,7 +46,8 @@ public class Spaceship extends Node {
     
     public void registerPhysics(PhysicsSpace ps) {        
         CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(model);
-        rbc = new RigidBodyControl(collisionShape, 1);
+        rbc = new RigidBodyControl(collisionShape, 1); 
+        rbc.setFriction(1);
         addControl(rbc);
         ps.add(rbc);
     }
@@ -72,11 +75,11 @@ public class Spaceship extends Node {
         fire1.setLowLife(0.1f);
         fire1.setHighLife(0.2f);
         fire1.getParticleInfluencer().setVelocityVariation(0.2f);
-        fire1.setLocalTranslation(0.1f, 0, 0);
+        fire1.setLocalTranslation(0.1f, 0, 0.2f);
         turbines.attachChild(fire1);
         
         ParticleEmitter fire2 = fire1.clone();
-        fire2.setLocalTranslation(-0.1f, 0, 0);
+        fire2.setLocalTranslation(-0.1f, 0, 0.2f);
         turbines.attachChild(fire2);
         
         attachChild(turbines);
@@ -122,6 +125,10 @@ public class Spaceship extends Node {
 
     public void setLaserMaterial(Material laserMaterial) {
         this.laserMaterial = laserMaterial;
+    }
+    
+    public RigidBodyControl getControl() {
+        return rbc;
     }
     
 }

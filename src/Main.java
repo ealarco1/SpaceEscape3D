@@ -46,11 +46,14 @@ public class Main extends SimpleApplication {
     private Node asteroids;
     private Node lasers;
     private float noComet;
+    
+    private boolean up, down, left, right, leftSide, rightSide;
+    private boolean moving;
 
     public static void main(String[] args) {
         Main app = new Main();        
         app.start();        
-        app.toggleToFullscreen();
+        //app.toggleToFullscreen();
     }
     
     public void toggleToFullscreen() {
@@ -70,7 +73,6 @@ public class Main extends SimpleApplication {
         bap = new BulletAppState();
         stateManager.attach(bap);
         bap.getPhysicsSpace().setGravity(Vector3f.ZERO);
-        bap.getPhysicsSpace().enableDebug(assetManager);
         
         planets = new Planet[9];
         
@@ -101,6 +103,7 @@ public class Main extends SimpleApplication {
         venus.setInitLocation(new Vector3f(20.0f, 0f, -6.0f));
         venus.setRotationSpeed((float)Math.random());
         venus.setTranslationSpeed(0.65f);
+        venus.registerPhysics(bap.getPhysicsSpace());
         planets[1] = venus;
         rootNode.attachChild(venus);
         
@@ -112,6 +115,7 @@ public class Main extends SimpleApplication {
         earth.setInitLocation(new Vector3f(28.0f, 0f, -6.0f));
         earth.setRotationSpeed((float)Math.random());
         earth.setTranslationSpeed(0.6f);
+        earth.registerPhysics(bap.getPhysicsSpace());
         planets[2] = earth;
         rootNode.attachChild(earth);
         
@@ -122,6 +126,7 @@ public class Main extends SimpleApplication {
         mars.setInitLocation(new Vector3f(35.0f, 0f, -6.0f));
         mars.setRotationSpeed((float)Math.random());
         mars.setTranslationSpeed(0.56f);
+        mars.registerPhysics(bap.getPhysicsSpace());
         planets[3] = mars;
         rootNode.attachChild(mars);
         
@@ -132,6 +137,7 @@ public class Main extends SimpleApplication {
         jupiter.setInitLocation(new Vector3f(49.0f, 0f, -6.0f));
         jupiter.setRotationSpeed((float)Math.random());
         jupiter.setTranslationSpeed(0.5f);
+        jupiter.registerPhysics(bap.getPhysicsSpace());
         planets[4] = jupiter;
         rootNode.attachChild(jupiter);
         
@@ -142,6 +148,7 @@ public class Main extends SimpleApplication {
         saturn.setInitLocation(new Vector3f(57.0f, 0f, -6.0f));
         saturn.setRotationSpeed((float)Math.random());
         saturn.setTranslationSpeed(0.44f);
+        saturn.registerPhysics(bap.getPhysicsSpace());
         planets[5] = saturn;
         rootNode.attachChild(saturn);
         
@@ -152,6 +159,7 @@ public class Main extends SimpleApplication {
         uranus.setInitLocation(new Vector3f(65.0f, 0f, -6.0f));
         uranus.setRotationSpeed((float)Math.random());
         uranus.setTranslationSpeed(0.4f);
+        uranus.registerPhysics(bap.getPhysicsSpace());
         planets[6] = uranus;
         rootNode.attachChild(uranus);
         
@@ -162,6 +170,7 @@ public class Main extends SimpleApplication {
         neptune.setInitLocation(new Vector3f(75.0f, 0f, -6.0f));
         neptune.setRotationSpeed((float)Math.random());
         neptune.setTranslationSpeed(0.34f);
+        neptune.registerPhysics(bap.getPhysicsSpace());
         planets[7] = neptune;
         rootNode.attachChild(neptune);
         
@@ -172,6 +181,7 @@ public class Main extends SimpleApplication {
         pluto.setInitLocation(new Vector3f(82.0f, 0f, -6.0f));
         pluto.setRotationSpeed((float)Math.random());
         pluto.setTranslationSpeed(0.2f);
+        pluto.registerPhysics(bap.getPhysicsSpace());
         planets[8] = pluto;
         rootNode.attachChild(pluto);
         
@@ -180,8 +190,8 @@ public class Main extends SimpleApplication {
                     assetManager.loadTexture("Effects/Explosion/flame.png"));
         spaceship.setLocalTranslation(0, 20, 40);
         spaceship.getModel().scale(0.1f);
-        spaceship.getModel().rotate(0, FastMath.PI, 0);
         spaceship.registerPhysics(bap.getPhysicsSpace());
+        
         rootNode.attachChild(spaceship);
         
         Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -196,8 +206,8 @@ public class Main extends SimpleApplication {
         
         flyCam.setEnabled(false);
         
-        cam.setLocation(new Vector3f(0, 0.5f, 2).add(spaceship.getLocalTranslation()));
-        cam.lookAt(spaceship.getLocalTranslation(), Vector3f.UNIT_Y);
+        cam.setLocation(spaceship.getRear().getWorldTranslation());
+        cam.lookAt(spaceship.getFront().getWorldTranslation(), Vector3f.UNIT_Y);
         
         PointLight sunLight = new PointLight();
         sunLight.setColor(ColorRGBA.White);
@@ -219,6 +229,7 @@ public class Main extends SimpleApplication {
         
         bloomDirection = 1;
         noComet = 1;
+        moving = up = down = left = right = leftSide = rightSide = false;
         
         asteroids = new Node("Asteroids");
         rootNode.attachChild(asteroids);
@@ -257,7 +268,7 @@ public class Main extends SimpleApplication {
         inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RSHIFT));
     
         inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
-        inputManager.addListener(actionListener, new String[]{"Accelerate", "Shoot"});
+        inputManager.addListener(actionListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate", "Shoot"});
     }
     
     private ActionListener actionListener = new ActionListener() {
@@ -270,6 +281,7 @@ public class Main extends SimpleApplication {
                         fire.setEndSize(0.1f);
                     }
                     spaceship.getSound("Accelerate").play();
+                    moving = true;
                 } else {
                     for (Spatial child : spaceship.getTurbines().getChildren()) {
                         ParticleEmitter fire = (ParticleEmitter) child;
@@ -277,12 +289,32 @@ public class Main extends SimpleApplication {
                         fire.setEndSize(0.05f);
                     }
                     spaceship.getSound("Accelerate").stop();
+                    moving = false;
                 }
             }
             
             if (name.equals("Shoot") && isPressed) {
                 lasers.attachChild(spaceship.shoot());
                 spaceship.getSound("Laser").playInstance();
+            }
+            
+            if (name.equals("Left")) {
+                left = isPressed;
+            }
+            if (name.equals("Right")) {
+                right = isPressed;
+            }
+            if (name.equals("Up")) {
+                up = isPressed;
+            }
+            if (name.equals("Down")) {
+                down = isPressed;
+            }
+            if (name.equals("LeftSide")) {
+                leftSide = isPressed;
+            }
+            if (name.equals("RightSide")) {
+                rightSide = isPressed;
             }
         }
         
@@ -291,28 +323,7 @@ public class Main extends SimpleApplication {
     private AnalogListener analogListener = new AnalogListener() {
 
         public void onAnalog(String name, float value, float tpf) {
-            if (name.equals("Left")) {
-                spaceship.rotate(0, tpf, 0);
-            }
-            if (name.equals("Right")) {
-                spaceship.rotate(0, -tpf, 0);
-            }
-            if (name.equals("Up")) {
-                spaceship.rotate(tpf, 0, 0);
-            }
-            if (name.equals("Down")) {
-                spaceship.rotate(-tpf, 0, 0);
-            }
-            if (name.equals("LeftSide")) {
-                spaceship.rotate(0, 0, 2*tpf);
-            }
-            if (name.equals("RightSide")) {
-                spaceship.rotate(0, 0, -2*tpf);
-            }
             if (name.equals("Accelerate")) {
-                Vector3f movement = new Vector3f(0, 0, 0);
-                spaceship.getLocalRotation().mult(new Vector3f(0, 0, -8 * tpf), movement);
-                spaceship.move(movement);
             }
         }
         
@@ -356,11 +367,40 @@ public class Main extends SimpleApplication {
 
     @Override
     public void simpleUpdate(float tpf) {
-        /*for(Planet planet : planets){
+        for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationSpeed()*tpf);
-            planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);
-                
-        }*/
+            planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);                
+        }
+            
+        Vector3f rotation = new Vector3f(0, 0, 0);
+        if (left) {
+            rotation.addLocal(0, 1, 0);
+        }
+        if (right) {
+            rotation.addLocal(0, -1, 0);
+        }
+        if (up) {
+            rotation.addLocal(1, 0, 0);
+        }
+        if (down) {
+            rotation.addLocal(-1, 0, 0);
+        }
+        if (leftSide) {
+            rotation.addLocal(0, 0, 1);
+        }
+        if (rightSide) {
+            rotation.addLocal(0, 0, -1);
+        }
+        
+        Vector3f transformed = new Vector3f(0,0,0);
+        spaceship.getLocalRotation().mult(rotation, transformed);
+        spaceship.getControl().setAngularVelocity(transformed);
+        
+        Vector3f movement = new Vector3f(0, 0, 0);        
+        if (moving) {
+            spaceship.getWorldRotation().mult(new Vector3f(0, 0, -6), movement);
+        }
+        spaceship.getControl().setLinearVelocity(movement);
         
         bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
         if (bloom.getBloomIntensity() > 4) {
