@@ -1,5 +1,6 @@
 package objects;
 
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.scene.Node;
 import com.jme3.material.Material;
 import com.jme3.math.Vector3f;
@@ -19,13 +20,15 @@ public class Planet {
     private float translationVel;
     
     public Planet(String name, float radius, Vector3f initLocation, 
-            Material mat, Node pivot, float rotationVel, float translationVel) {
+            Material mat, Node pivot, float rotationVel, float translationVel,
+            RigidBodyControl physic) {
         this.pivot = pivot;
         this.rotationVel = rotationVel;
         this.translationVel = translationVel;
         geom = new Geometry(name, new Sphere(32, 32, radius));
         geom.setMaterial(mat);
-        if(initLocation != null) geom.setLocalTranslation(initLocation);
+        geom.addControl(physic);
+        if(initLocation != null) physic.setPhysicsLocation(initLocation);
         geom.rotate(-1.7f, 3.0f, 0);
         if(pivot != null) pivot.attachChild(geom); 
     }

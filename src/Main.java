@@ -2,6 +2,8 @@
 
 import com.jme3.app.SimpleApplication;
 import com.jme3.audio.AudioNode;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.effect.ParticleEmitter;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -35,6 +37,7 @@ public class Main extends SimpleApplication {
     public static final int MAX_ASTEROIDS = 30;
     
     private Planet sun, mercury, venus, earth, mars, jupiter, saturn, uranus, neptune, pluto;
+    private RigidBodyControl pSun, pMercury, pVenus, pEarth, pMars, pJupiter, pSaturn, pUranus, pNeptune, pPluto, pSpaceship;
     private Planet[] planets;
     private Spaceship spaceship;
     private FilterPostProcessor fpp;
@@ -44,6 +47,7 @@ public class Main extends SimpleApplication {
     private Node asteroids;
     private Node lasers;
     private float noComet;
+    private BulletAppState bulletAppState;
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -65,6 +69,10 @@ public class Main extends SimpleApplication {
     @Override
     public void simpleInitApp() {
         
+        bulletAppState = new BulletAppState();
+        stateManager.attach(bulletAppState);
+        //bulletAppState.getPhysicsSpace().setGravity(Vector3f.ZERO);
+        
         planets = new Planet[9];
         
         Material mat10 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");        
@@ -72,7 +80,8 @@ public class Main extends SimpleApplication {
         mat10.setTexture("GlowMap", assetManager.loadTexture("Textures/Sun.jpg"));
         mat10.setColor("Specular", ColorRGBA.White);
         mat10.setBoolean("UseAlpha", true);
-        sun = new Planet("Sun", 5f, null, mat10, null, 0, 0);
+        pSun = new RigidBodyControl(0);
+        sun = new Planet("Sun", 5f, null, mat10, null, 0, 0, pSun);
         rootNode.attachChild(sun.getGeom());
         
         Material mat1 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -80,7 +89,8 @@ public class Main extends SimpleApplication {
         mat1.setColor("Specular", ColorRGBA.White);
         Node p1 = new Node();
         rootNode.attachChild(p1);
-        mercury = new Planet("Mercury", 2f, new Vector3f(16.0f, 0f, -6.0f), mat1, p1, (float) Math.random(), 0.76f);
+        pMercury = new RigidBodyControl(0);
+        mercury = new Planet("Mercury", 2f, new Vector3f(16.0f, 0f, -6.0f), mat1, p1, (float) Math.random(), 0.76f, pMercury);
         planets[0] = mercury;
         
         Material mat2 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -88,7 +98,8 @@ public class Main extends SimpleApplication {
         mat2.setColor("Specular", ColorRGBA.White);
         Node p2 = new Node();
         rootNode.attachChild(p2);
-        venus = new Planet("Venus", 2.6f, new Vector3f(20.0f, 0f, -6.0f), mat2, p2, (float) Math.random(), 0.65f);
+        pVenus = new RigidBodyControl(0);
+        venus = new Planet("Venus", 2.6f, new Vector3f(20.0f, 0f, -6.0f), mat2, p2, (float) Math.random(), 0.65f, pVenus);
         planets[1] = venus;
         
         Material mat3 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -98,7 +109,8 @@ public class Main extends SimpleApplication {
         //mat3.setTexture("GlowMap", assetManager.loadTexture("Textures/Earth/Lights3.jpeg"));
         Node p3 = new Node();
         rootNode.attachChild(p3);
-        earth = new Planet("Earth", 2.7f, new Vector3f(28.0f, 0f, -6.0f), mat3, p3, (float) Math.random(), 0.6f);
+        pEarth = new RigidBodyControl(0);
+        earth = new Planet("Earth", 2.7f, new Vector3f(28.0f, 0f, -6.0f), mat3, p3, (float) Math.random(), 0.6f, pEarth);
         planets[2] = earth;
         
         Material mat4 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -106,7 +118,8 @@ public class Main extends SimpleApplication {
         mat4.setColor("Specular", ColorRGBA.White);
         Node p4 = new Node();
         rootNode.attachChild(p4);
-        mars = new Planet("Mars", 2.5f, new Vector3f(35.0f, 0f, -6.0f), mat4, p4, (float) Math.random(), 0.56f);
+        pMars = new RigidBodyControl(0);
+        mars = new Planet("Mars", 2.5f, new Vector3f(35.0f, 0f, -6.0f), mat4, p4, (float) Math.random(), 0.56f, pMars);
         planets[3] = mars;
         
         Material mat5 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -114,7 +127,8 @@ public class Main extends SimpleApplication {
         mat5.setColor("Specular", ColorRGBA.White);        
         Node p5 = new Node();
         rootNode.attachChild(p5);
-        jupiter = new Planet("Jupiter", 3.1f, new Vector3f(49.0f, 0f, -6.0f), mat5, p5, (float) Math.random(), 0.5f);
+        pJupiter = new RigidBodyControl(0);
+        jupiter = new Planet("Jupiter", 3.1f, new Vector3f(49.0f, 0f, -6.0f), mat5, p5, (float) Math.random(), 0.5f, pJupiter);
         planets[4] = jupiter;
         
         Material mat6 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -122,7 +136,8 @@ public class Main extends SimpleApplication {
         mat6.setColor("Specular", ColorRGBA.White);
         Node p6 = new Node();
         rootNode.attachChild(p6);
-        saturn = new Planet("Saturn", 2.9f, new Vector3f(57.0f, 0f, -6.0f), mat6, p6, (float) Math.random(), 0.44f);
+        pSaturn = new RigidBodyControl(0);
+        saturn = new Planet("Saturn", 2.9f, new Vector3f(57.0f, 0f, -6.0f), mat6, p6, (float) Math.random(), 0.44f, pSaturn);
         planets[5] = saturn;
         
         Material mat7 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -130,7 +145,8 @@ public class Main extends SimpleApplication {
         mat7.setColor("Specular", ColorRGBA.White);
         Node p7 = new Node();
         rootNode.attachChild(p7);
-        uranus = new Planet("Uranus", 2.8f, new Vector3f(65.0f, 0f, -6.0f), mat7, p7, (float) Math.random(), 0.4f);
+        pUranus = new RigidBodyControl(0);
+        uranus = new Planet("Uranus", 2.8f, new Vector3f(65.0f, 0f, -6.0f), mat7, p7, (float) Math.random(), 0.4f, pUranus);
         planets[6] = uranus;
         
         Material mat8 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -138,7 +154,8 @@ public class Main extends SimpleApplication {
         mat8.setColor("Specular", ColorRGBA.White);
         Node p8 = new Node();
         rootNode.attachChild(p8);
-        neptune = new Planet("Neptune", 2.65f, new Vector3f(75.0f, 0f, -6.0f), mat8, p8, (float) Math.random(), 0.34f);
+        pNeptune = new RigidBodyControl(0);
+        neptune = new Planet("Neptune", 2.65f, new Vector3f(75.0f, 0f, -6.0f), mat8, p8, (float) Math.random(), 0.34f, pNeptune);
         planets[7] = neptune;
         
         Material mat9 = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
@@ -146,17 +163,20 @@ public class Main extends SimpleApplication {
         mat9.setColor("Specular", ColorRGBA.White);
         Node p9 = new Node();
         rootNode.attachChild(p9);
-        pluto = new Planet("Pluto", 1.5f, new Vector3f(82.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), 0.2f);
+        pPluto = new RigidBodyControl(0);
+        pluto = new Planet("Pluto", 1.5f, new Vector3f(82.0f, 0f, -6.0f), mat9, p9, (float) Math.random(), 0.2f, pPluto);
         planets[8] = pluto;
         
         spaceship = new Spaceship("Spaceship", assetManager.loadModel("Models/X-WING/X-WING.j3o"));
         spaceship.addTurbines(new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md"), 
                     assetManager.loadTexture("Effects/Explosion/flame.png"));
+        pSpaceship = new RigidBodyControl(0);
+        spaceship.addControl(pSpaceship);
         rootNode.attachChild(spaceship);
-        spaceship.setLocalTranslation(0, 20, 40);
+        pSpaceship.setPhysicsLocation(new Vector3f(0, 20, 40));
         spaceship.getModel().scale(0.1f);
         spaceship.getModel().rotate(0, FastMath.PI, 0);
-        
+                
         Material laserMaterial = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
         laserMaterial.setColor("GlowColor", ColorRGBA.Green);
         laserMaterial.setColor("Ambient", ColorRGBA.Green);
@@ -191,10 +211,21 @@ public class Main extends SimpleApplication {
         rootNode.attachChild(SkyFactory.createSky(assetManager, "Textures/Stars5.jpeg", true));
         
         bloomDirection = 1;
-        noComet = 1;
         
-        asteroids = new Node("Asteroids");
+        asteroids = new Node("Comets");
         rootNode.attachChild(asteroids);
+        
+        bulletAppState.getPhysicsSpace().add(pSun);
+        bulletAppState.getPhysicsSpace().add(pMercury);
+        bulletAppState.getPhysicsSpace().add(pVenus);
+        bulletAppState.getPhysicsSpace().add(pEarth);
+        bulletAppState.getPhysicsSpace().add(pMars);
+        bulletAppState.getPhysicsSpace().add(pJupiter);
+        bulletAppState.getPhysicsSpace().add(pSaturn);
+        bulletAppState.getPhysicsSpace().add(pUranus);
+        bulletAppState.getPhysicsSpace().add(pNeptune);
+        bulletAppState.getPhysicsSpace().add(pPluto);
+        bulletAppState.getPhysicsSpace().add(pSpaceship);
         
         initKeys();
         initAudio();      
