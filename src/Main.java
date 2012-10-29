@@ -494,11 +494,12 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         spaceship.getLocalRotation().mult(rotation, transformed);
         spaceship.getControl().setAngularVelocity(transformed);
         
-        Vector3f movement = new Vector3f(0, 0, 0);        
+        Vector3f movement = new Vector3f(0, 0, 0);
+        Vector3f sunGravity = sun.getWorldTranslation().subtract(spaceship.getWorldTranslation()).mult(0.05f);
         if (moving) {
             spaceship.getWorldRotation().mult(new Vector3f(0, 0, -6), movement);
         }
-        spaceship.getControl().setLinearVelocity(movement);
+        spaceship.getControl().setLinearVelocity(movement.add(sunGravity));
         
         bloom.setBloomIntensity(bloom.getBloomIntensity() + (bloomDirection * tpf / 8));
         if (bloom.getBloomIntensity() > 4) {
