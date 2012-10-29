@@ -6,6 +6,7 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
 import com.jme3.effect.ParticleEmitter;
+import com.jme3.effect.ParticleMesh;
 import com.jme3.font.BitmapText;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
@@ -471,7 +472,24 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     public void collision(PhysicsCollisionEvent event) {
         if(event.getNodeA().getName().equals("Spaceship")) {
             if(event.getNodeB().getName().equals("Sun")) {
-                final Spatial sp = event.getNodeA(); //Con esto es que podes mover la nave
+                ParticleEmitter explosion = new ParticleEmitter("Explotion", ParticleMesh.Type.Triangle, 30);
+                Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+                mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
+                explosion.setMaterial(mat_red);
+                explosion.setImagesX(2); 
+                explosion.setImagesY(2); // 2x2 texture animation
+                explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+                explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+                explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
+                explosion.setStartSize(1.5f);
+                explosion.setEndSize(0.1f);
+                explosion.setGravity(0,0,0);
+                explosion.setLowLife(0.5f);
+                explosion.setHighLife(3f);
+                explosion.getParticleInfluencer().setVelocityVariation(0.3f);
+                rootNode.attachChild(explosion);
+                explosion.setLocalTranslation(spaceship.getLocalTranslation());
+                explosion.emitAllParticles();
                 lives = 0;
                 guiNode.detachAllChildren();
                 guiNode.detachChild(showText);
@@ -488,7 +506,24 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
         } else if(event.getNodeB().getName().equals("Spaceship")) {
             if(event.getNodeA().getName().equals("Sun")) {
-                final Spatial sp = event.getNodeA(); //Con esto es que podes mover la nave
+                ParticleEmitter explosion = new ParticleEmitter("Explotion", ParticleMesh.Type.Triangle, 30);
+                Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+                mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
+                explosion.setMaterial(mat_red);
+                explosion.setImagesX(2); 
+                explosion.setImagesY(2); // 2x2 texture animation
+                explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+                explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+                explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
+                explosion.setStartSize(1.5f);
+                explosion.setEndSize(0.1f);
+                explosion.setGravity(0,0,0);
+                explosion.setLowLife(0.5f);
+                explosion.setHighLife(3f);
+                explosion.getParticleInfluencer().setVelocityVariation(0.3f);
+                rootNode.attachChild(explosion);
+                explosion.setLocalTranslation(spaceship.getLocalTranslation());
+                explosion.emitAllParticles();
                 lives = 0;
                 guiNode.detachAllChildren();
                 guiNode.detachChild(showText);
