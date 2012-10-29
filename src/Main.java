@@ -563,6 +563,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
                 generateDebris(spaceship.getWorldTranslation());
+                spaceship.getSound("Accelerate").stop();
                 bap.getPhysicsSpace().remove(spaceship.getControl());
                 spaceship.removeFromParent();
                 lives = 0;
