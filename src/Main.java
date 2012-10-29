@@ -59,7 +59,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     private boolean moving;
     private BitmapText showText;
     private BitmapText scoreText;
-    private Picture livespic[];
+    //private Picture livespic[];
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -101,6 +101,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         guiNode.attachChild(scoreText);
         
         lives = 3;
+        /*
         livespic = new Picture[lives];
         for(int i=0; i < lives; i++){ 
             livespic[i] = new Picture("Live "+i);
@@ -110,6 +111,8 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             livespic[i].setPosition(i*50, settings.getHeight()-50);
             guiNode.attachChild(livespic[i]);
         }
+         * 
+         */
         
         planets = new Planet[9];
         
@@ -467,7 +470,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     public void simpleUpdate(float tpf) {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationSpeed()*tpf);
-            //planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);                
+            planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);                
         }
         
         for (Spatial spatial : explosions.getChildren()) {
@@ -551,73 +554,59 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     }
 
     public void collision(PhysicsCollisionEvent event) {
-        if(event.getNodeA().getName().equals("Spaceship")) {
-            if(event.getNodeB().getName().equals("Sun")) {
+        String nodeA = event.getNodeA().getName();
+        String nodeB = event.getNodeB().getName();
+        if(nodeA.equals("Spaceship") || nodeB.equals("Spaceship")) {
+            if(nodeB.equals("Sun") || nodeA.equals("Sun")) {
+                lives -= 3;
+            } else {
+                lives--;                
+            }
+            if(lives >= 0) {
+                /*
+                guiNode.detachChild(livespic[lives]);
+                Vector3f movement = new Vector3f(0, 0, 0);
+                spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
+                spaceship.getControl().setLinearVelocity(movement);
+                 * 
+                 */
+            } else {
+                speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
+                generateDebris(spaceship.getWorldTranslation());
+                bap.getPhysicsSpace().remove(spaceship.getControl());
+                spaceship.removeFromParent();
                 lives = 0;
                 guiNode.detachAllChildren();
                 guiNode.detachChild(showText);
                 showText.setText("GAME OVER");
                 guiNode.attachChild(showText);
-            } else {
-                lives--;
-                if(lives >= 0) {
-                    guiNode.detachChild(livespic[lives]);
-                    Vector3f movement = new Vector3f(0, 0, 0);        
-                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, -50), movement);
-                    spaceship.getControl().setLinearVelocity(movement);
-                } else {
-                    showText.setText("GAME OVER");
-                    guiNode.attachChild(showText);
-                }
+                guiNode.attachChild(scoreText);
+                inputManager.removeListener(actionListener);
             }
-        } else if(event.getNodeB().getName().equals("Spaceship")) {
-            if(event.getNodeA().getName().equals("Sun")) {
-                generateExplosion(spaceship.getWorldTranslation());
-                lives = 0;
-                guiNode.detachAllChildren();
-                guiNode.detachChild(showText);
-                showText.setText("GAME OVER");
-                guiNode.attachChild(showText);
-                
-            } else {
-                lives--;
-                if(lives >= 0) {
-                    guiNode.detachChild(livespic[lives]);
+        } else if (nodeA.equals("Laser") || nodeB.equals("Laser")) {
+            if(nodeB.equals("Asteroid") || nodeA.equals("Asteroid")) {
+                final Asteroid asteroid;
+                if(nodeA.equals("Asteroid")) {
+                    asteroid = (Asteroid)event.getNodeA();
                 } else {
-                    showText.setText("GAME OVER");
-                    guiNode.attachChild(showText);
+                    asteroid = (Asteroid)event.getNodeB();
                 }
-            }
-        } else if (event.getNodeA().getName().equals("Laser")) {
-            if(event.getNodeB().getName().equals("Asteroid")) {
-                final Asteroid asteroid = (Asteroid)event.getNodeB();
                 if(asteroid.isComet()) {
-                    score += 100;
-                } else {
                     score += 500;
+                } else {
+                    score += 100;
                 }
                 generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
                 asteroid.removeFromParent();
             }
-            Laser laser = (Laser)event.getNodeA();
-            generateExplosion(laser.getWorldTranslation());
-            bap.getPhysicsSpace().remove(laser.getControl());
-            laser.removeFromParent();
-        } else if (event.getNodeB().getName().equals("Laser")) {
-            if(event.getNodeA().getName().equals("Asteroid")) {
-                final Asteroid asteroid = (Asteroid)event.getNodeA();
-                if(asteroid.isComet()) {
-                    score += 100;
-                } else {
-                    score += 500;
-                }
-                generateDebris(asteroid.getWorldTranslation());
-                bap.getPhysicsSpace().remove(asteroid.getControl());
-                asteroid.removeFromParent();
+            Laser laser;
+            if(nodeA.equals("Laser")){
+                laser = (Laser)event.getNodeA();
+            } else {
+                laser = (Laser)event.getNodeB();
             }
-            Laser laser = (Laser)event.getNodeB();
             generateExplosion(laser.getWorldTranslation());
             bap.getPhysicsSpace().remove(laser.getControl());
             laser.removeFromParent();
