@@ -71,6 +71,10 @@ public class Asteroid extends Node {
         trail.attachChild(fire);
         attachChild(trail);
     }
+    
+    public boolean isComet() {
+        return trail != null;
+    }
 
     public int getSpeed() {
         return speed;
