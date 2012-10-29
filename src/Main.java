@@ -600,6 +600,8 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
                 asteroid.removeFromParent();
+            } else {
+                score -=50;
             }
             Laser laser;
             if(nodeA.equals("Laser")){
