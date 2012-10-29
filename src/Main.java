@@ -467,7 +467,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     public void simpleUpdate(float tpf) {
         for(Planet planet : planets){
             planet.getGeom().rotate(0, 0, planet.getRotationSpeed()*tpf);
-            planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);                
+            //planet.getPivot().rotate(0, planet.getTranslationSpeed()*tpf, 0);                
         }
         
         for (Spatial spatial : explosions.getChildren()) {
@@ -564,7 +564,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 if(lives >= 0) {
                     guiNode.detachChild(livespic[lives]);
                     Vector3f movement = new Vector3f(0, 0, 0);        
-                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
+                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, -50), movement);
                     spaceship.getControl().setLinearVelocity(movement);
                 } else {
                     showText.setText("GAME OVER");
@@ -584,9 +584,6 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 lives--;
                 if(lives >= 0) {
                     guiNode.detachChild(livespic[lives]);
-                    Vector3f movement = new Vector3f(0, 0, 0);        
-                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
-                    spaceship.getControl().setLinearVelocity(movement);
                 } else {
                     showText.setText("GAME OVER");
                     guiNode.attachChild(showText);
@@ -596,9 +593,9 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             if(event.getNodeB().getName().equals("Asteroid")) {
                 final Asteroid asteroid = (Asteroid)event.getNodeB();
                 if(asteroid.isComet()) {
-                    score += 500;
-                } else {
                     score += 100;
+                } else {
+                    score += 500;
                 }
                 generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
@@ -612,9 +609,9 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             if(event.getNodeA().getName().equals("Asteroid")) {
                 final Asteroid asteroid = (Asteroid)event.getNodeA();
                 if(asteroid.isComet()) {
-                    score += 500;
-                } else {
                     score += 100;
+                } else {
+                    score += 500;
                 }
                 generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
