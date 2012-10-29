@@ -58,7 +58,7 @@ public class Planet extends Node {
     public Geometry getGeom() {
         return geom;
     }
-
+    
     public Node getPivot() {
         return pivot;
     }
