@@ -48,6 +48,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     private BloomFilter bloom;
     private int bloomDirection;
     private AudioNode bgAudio;
+    private AudioNode explosionAudio;
     private Node asteroids;
     private Node lasers;
     private Node explosions;
@@ -278,12 +279,17 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         
     }
     
-    private void initAudio() {       
+    private void initAudio() {    
         bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
         rootNode.attachChild(bgAudio);
-        bgAudio.play();        
+        bgAudio.play();
+        
+        explosionAudio = new AudioNode(assetManager, "Sound/Explosion.wav", false);
+        explosionAudio.setLooping(false);
+        explosionAudio.setVolume(0.5f);
+        rootNode.attachChild(explosionAudio);     
         
         AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
         accelAudio.setLooping(true);
@@ -429,6 +435,8 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         explosion.setLocalTranslation(position);
         explosions.attachChild(explosion);
         explosion.emitAllParticles();
+        
+        explosionAudio.playInstance();
     }
     
     public void generateDebris(Vector3f position) {
