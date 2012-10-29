@@ -553,7 +553,11 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     public void collision(PhysicsCollisionEvent event) {
         if(event.getNodeA().getName().equals("Spaceship")) {
             if(event.getNodeB().getName().equals("Sun")) {
+                speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
+                generateDebris(spaceship.getWorldTranslation());
+                bap.getPhysicsSpace().remove(spaceship.getControl());
+                spaceship.removeFromParent();
                 lives = 0;
                 guiNode.detachAllChildren();
                 guiNode.detachChild(showText);
@@ -570,7 +574,11 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
         } else if(event.getNodeB().getName().equals("Spaceship")) {
             if(event.getNodeA().getName().equals("Sun")) {
+                speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
+                generateDebris(spaceship.getWorldTranslation());
+                bap.getPhysicsSpace().remove(spaceship.getControl());
+                spaceship.removeFromParent();
                 lives = 0;
                 guiNode.detachAllChildren();
                 guiNode.detachChild(showText);
