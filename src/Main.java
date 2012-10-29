@@ -48,6 +48,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     private BloomFilter bloom;
     private int bloomDirection;
     private AudioNode bgAudio;
+    private AudioNode explosionAudio;
     private Node asteroids;
     private Node lasers;
     private Node explosions;
@@ -278,12 +279,17 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         
     }
     
-    private void initAudio() {       
+    private void initAudio() {    
         bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
         rootNode.attachChild(bgAudio);
-        bgAudio.play();        
+        bgAudio.play();
+        
+        explosionAudio = new AudioNode(assetManager, "Sound/Explosion.wav", false);
+        explosionAudio.setLooping(false);
+        explosionAudio.setVolume(0.5f);
+        rootNode.attachChild(explosionAudio);     
         
         AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
         accelAudio.setLooping(true);
@@ -420,10 +426,38 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
         explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,0,0));
         explosion.setGravity(0,0,0);
+        explosion.setStartSize(2);
+        explosion.setEndSize(4);
         explosion.setLowLife(1);
         explosion.setHighLife(2);
         explosion.setParticlesPerSec(0);
         explosion.getParticleInfluencer().setVelocityVariation(4);
+        explosion.setLocalTranslation(position);
+        explosions.attachChild(explosion);
+        explosion.emitAllParticles();
+        
+        explosionAudio.playInstance();
+    }
+    
+    public void generateDebris(Vector3f position) {
+        ParticleEmitter explosion = new ParticleEmitter("Debris", ParticleMesh.Type.Triangle, 6);
+        Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/Debris.png"));
+        explosion.setMaterial(mat_red);
+        explosion.setImagesX(3);
+        explosion.setImagesY(3);
+        explosion.setRotateSpeed(4);
+        explosion.setSelectRandomImage(true);
+        explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,0.4f,0));
+        explosion.setStartSize(1);
+        explosion.setEndSize(1);
+        explosion.setStartColor(ColorRGBA.Gray);
+        explosion.setEndColor(ColorRGBA.Gray);
+        explosion.setGravity(0,0,0);
+        explosion.setLowLife(6);
+        explosion.setHighLife(8);
+        explosion.setParticlesPerSec(0);
+        explosion.getParticleInfluencer().setVelocityVariation(10);
         explosion.setLocalTranslation(position);
         explosions.attachChild(explosion);
         explosion.emitAllParticles();
@@ -508,7 +542,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             laser.move(laser.getDirection().mult(laser.getSpeed()));
         }
         
-        scoreText.setText("Score: "+score);
+        scoreText.setText("Score: " + score);
     }
 
     @Override
@@ -559,6 +593,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             if(event.getNodeB().getName().equals("Asteroid")) {
                 final Asteroid asteroid = (Asteroid)event.getNodeB();
                 score += 100;
+                generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
                 asteroid.removeFromParent();
             }
@@ -570,6 +605,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             if(event.getNodeA().getName().equals("Asteroid")) {
                 final Asteroid asteroid = (Asteroid)event.getNodeA();
                 score += 100;
+                generateDebris(asteroid.getWorldTranslation());
                 bap.getPhysicsSpace().remove(asteroid.getControl());
                 asteroid.removeFromParent();
             }
