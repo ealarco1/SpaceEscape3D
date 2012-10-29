@@ -81,6 +81,9 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     @Override
     public void simpleInitApp() {
         
+        setDisplayFps(false);
+        setDisplayStatView(false);
+        
         bap = new BulletAppState();
         stateManager.attach(bap);
         bap.getPhysicsSpace().setGravity(Vector3f.ZERO);
