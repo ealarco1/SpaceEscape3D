@@ -53,9 +53,11 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     private Node lasers;
     private float noComet;
     private int lives;
+    private int score;
     private boolean up, down, left, right, leftSide, rightSide;
     private boolean moving;
     private BitmapText showText;
+    private BitmapText scoreText;
     private Picture livespic[];
 
     public static void main(String[] args) {
@@ -88,6 +90,14 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         showText.setSize(50);
         showText.setColor(ColorRGBA.Red);
         showText.setLocalTranslation((settings.getWidth()/2)-200,settings.getHeight()/2, 0);
+        
+        score = 0;
+        scoreText = new BitmapText(guiFont, false);
+        scoreText.setSize(guiFont.getCharSet().getRenderedSize()); 
+        scoreText.setColor(ColorRGBA.White);
+        scoreText.setText("Score: "+score);
+        scoreText.setLocalTranslation(settings.getWidth()-200, settings.getHeight()-30, 0);
+        guiNode.attachChild(scoreText);
         
         lives = 3;
         livespic = new Picture[lives];
@@ -467,6 +477,8 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
             laser.move(laser.getDirection().mult(laser.getSpeed()));
         }
+        
+        scoreText.setText("Score: "+score);
     }
 
     @Override
@@ -475,23 +487,23 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     }
 
     public void collision(PhysicsCollisionEvent event) {
+        ParticleEmitter explosion = new ParticleEmitter("Explotion", ParticleMesh.Type.Triangle, 30);
+        Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
+        mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
+        explosion.setMaterial(mat_red);
+        explosion.setImagesX(2); 
+        explosion.setImagesY(2); // 2x2 texture animation
+        explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
+        explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
+        explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
+        explosion.setStartSize(1.5f);
+        explosion.setEndSize(0.1f);
+        explosion.setGravity(0,0,0);
+        explosion.setLowLife(0.5f);
+        explosion.setHighLife(3f);
+        explosion.getParticleInfluencer().setVelocityVariation(0.3f);
         if(event.getNodeA().getName().equals("Spaceship")) {
             if(event.getNodeB().getName().equals("Sun")) {
-                ParticleEmitter explosion = new ParticleEmitter("Explotion", ParticleMesh.Type.Triangle, 30);
-                Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-                mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-                explosion.setMaterial(mat_red);
-                explosion.setImagesX(2); 
-                explosion.setImagesY(2); // 2x2 texture animation
-                explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
-                explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-                explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
-                explosion.setStartSize(1.5f);
-                explosion.setEndSize(0.1f);
-                explosion.setGravity(0,0,0);
-                explosion.setLowLife(0.5f);
-                explosion.setHighLife(3f);
-                explosion.getParticleInfluencer().setVelocityVariation(0.3f);
                 rootNode.attachChild(explosion);
                 explosion.setLocalTranslation(spaceship.getLocalTranslation());
                 explosion.emitAllParticles();
@@ -511,21 +523,6 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
         } else if(event.getNodeB().getName().equals("Spaceship")) {
             if(event.getNodeA().getName().equals("Sun")) {
-                ParticleEmitter explosion = new ParticleEmitter("Explotion", ParticleMesh.Type.Triangle, 30);
-                Material mat_red = new Material(assetManager, "Common/MatDefs/Misc/Particle.j3md");
-                mat_red.setTexture("Texture", assetManager.loadTexture("Effects/Explosion/flame.png"));
-                explosion.setMaterial(mat_red);
-                explosion.setImagesX(2); 
-                explosion.setImagesY(2); // 2x2 texture animation
-                explosion.setEndColor(  new ColorRGBA(1f, 0f, 0f, 1f));   // red
-                explosion.setStartColor(new ColorRGBA(1f, 1f, 0f, 0.5f)); // yellow
-                explosion.getParticleInfluencer().setInitialVelocity(new Vector3f(0,2,0));
-                explosion.setStartSize(1.5f);
-                explosion.setEndSize(0.1f);
-                explosion.setGravity(0,0,0);
-                explosion.setLowLife(0.5f);
-                explosion.setHighLife(3f);
-                explosion.getParticleInfluencer().setVelocityVariation(0.3f);
                 rootNode.attachChild(explosion);
                 explosion.setLocalTranslation(spaceship.getLocalTranslation());
                 explosion.emitAllParticles();
@@ -544,9 +541,25 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 }
             }
         } else if (event.getNodeA().getName().equals("Laser")) {
-            System.out.println(event.getNodeB().getName());
+            if(event.getNodeB().getName().equals("Asteroid")) {
+                final Spatial asteroid = event.getNodeB();
+                score+=10;
+                rootNode.attachChild(explosion);
+                explosion.setLocalTranslation(asteroid.getLocalTranslation());
+                explosion.emitAllParticles();
+                rootNode.detachChild(asteroid);
+                explosion.killAllParticles();
+            }
         } else if (event.getNodeB().getName().equals("Laser")) {
-            System.out.println(event.getNodeA().getName());
+            if(event.getNodeA().getName().equals("Asteroid")) {
+                final Spatial asteroid = event.getNodeA();
+                score+=10;
+                rootNode.attachChild(explosion);
+                explosion.setLocalTranslation(asteroid.getLocalTranslation());
+                explosion.emitAllParticles();
+                rootNode.detachChild(asteroid);
+                explosion.killAllParticles();
+            }
         }
     }
 }
