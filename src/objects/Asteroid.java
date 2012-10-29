@@ -34,6 +34,10 @@ public class Asteroid extends Node {
         attachChild(this.model);
     }
     
+    public RigidBodyControl getControl() {
+        return rbc;
+    }
+    
     public void registerPhysics(PhysicsSpace ps) {
         CollisionShape collisionShape = CollisionShapeFactory.createDynamicMeshShape(model);
         rbc = new RigidBodyControl(collisionShape, 80);
