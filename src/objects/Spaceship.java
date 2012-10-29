@@ -22,6 +22,8 @@ public class Spaceship extends Node {
     private Spatial model;
     private Node front;
     private Node rear;
+    private Node leftGun;
+    private Node rightGun;
     private Node turbines;
     private Node sounds;
     private Material laserMaterial;
@@ -39,6 +41,13 @@ public class Spaceship extends Node {
         attachChild(rear);
         front.setLocalTranslation(0, 0, -2);        
         rear.setLocalTranslation(0, 0, 2);
+        
+        leftGun = new Node("LeftGun");
+        rightGun = new Node("RightGun");
+        attachChild(leftGun);
+        attachChild(rightGun);
+        leftGun.setLocalTranslation(-0.5f, 0, 0);
+        rightGun.setLocalTranslation(0.5f, 0, 0);
         
         sounds = new Node("Sounds");        
         attachChild(sounds);
@@ -84,14 +93,19 @@ public class Spaceship extends Node {
         attachChild(turbines);
     }
     
-    public Laser shoot() {
-        Laser laser = new Laser("Laser", laserMaterial);
+    public Laser[] shoot() {
+        Laser laser1 = new Laser("Laser", laserMaterial);
         Vector3f direction = new Vector3f(0, 0, 0);
         getLocalRotation().mult(new Vector3f(0, 0, -1), direction);
-        laser.setDirection(direction);
-        laser.setLocalTranslation(getWorldTranslation());
-        laser.setLocalRotation(getWorldRotation());
-        return laser;
+        laser1.setDirection(direction);
+        laser1.setLocalTranslation(leftGun.getWorldTranslation());
+        laser1.setLocalRotation(getWorldRotation());
+        
+        Laser laser2 = (Laser)laser1.clone();
+        laser2.setLocalTranslation(rightGun.getWorldTranslation());
+        
+        Laser[] lasers = {laser1, laser2};
+        return lasers;
     }  
 
     public AudioNode getSound(String name) {
