@@ -320,7 +320,11 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
             
             if (name.equals("Shoot") && isPressed) {
-                lasers.attachChild(spaceship.shoot());
+                Laser[] lasersShot = spaceship.shoot();
+                for (Laser laser : lasersShot) {
+                    laser.registerPhysics(bap.getPhysicsSpace());
+                    lasers.attachChild(laser);
+                }
                 spaceship.getSound("Laser").playInstance();
             }
             
@@ -446,7 +450,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         
         for (Spatial spatial : asteroids.getChildren()) {
             if (spatial.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
-                asteroids.detachChild(spatial);
+                spatial.removeFromParent();
             }
         }
         
@@ -455,11 +459,12 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         }
         
         for (Spatial spatial : lasers.getChildren()) {
-            if (spatial.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
-                lasers.detachChild(spatial);
+            Laser laser = (Laser) spatial;
+            if (laser.getWorldTranslation().subtract(Vector3f.ZERO).length() > 200) {
+                bap.getPhysicsSpace().remove(laser.getControl());
+                laser.removeFromParent();
                 continue;
             }
-            Laser laser = (Laser) spatial;
             laser.move(laser.getDirection().mult(laser.getSpeed()));
         }
     }
@@ -497,7 +502,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 guiNode.attachChild(showText);
             } else {
                 lives--;
-                if(lives>=0) {
+                if(lives >= 0) {
                     guiNode.detachChild(livespic[lives]);
                 } else {
                     showText.setText("GAME OVER");
@@ -531,13 +536,17 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 guiNode.attachChild(showText);
             } else {
                 lives--;
-                if(lives>=0) {
+                if(lives >= 0) {
                     guiNode.detachChild(livespic[lives]);
                 } else {
                     showText.setText("GAME OVER");
                     guiNode.attachChild(showText);
                 }
             }
+        } else if (event.getNodeA().getName().equals("Laser")) {
+            System.out.println(event.getNodeB().getName());
+        } else if (event.getNodeB().getName().equals("Laser")) {
+            System.out.println(event.getNodeA().getName());
         }
     }
 }
