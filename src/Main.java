@@ -311,8 +311,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         inputManager.addMapping("RightSide", new KeyTrigger(KeyInput.KEY_E));
         inputManager.addMapping("Accelerate", new KeyTrigger(KeyInput.KEY_SPACE));
         inputManager.addMapping("Shoot", new KeyTrigger(KeyInput.KEY_RSHIFT));
-    
-        inputManager.addListener(analogListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate"});
+        
         inputManager.addListener(actionListener, new String[]{"Left", "Right", "Up", "Down", "LeftSide", "RightSide", "Accelerate", "Shoot"});
     }
     
@@ -364,15 +363,6 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             }
             if (name.equals("RightSide")) {
                 rightSide = isPressed;
-            }
-        }
-        
-    };
-    
-    private AnalogListener analogListener = new AnalogListener() {
-
-        public void onAnalog(String name, float value, float tpf) {
-            if (name.equals("Accelerate")) {
             }
         }
         
