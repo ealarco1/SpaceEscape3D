@@ -547,19 +547,18 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         String nodeA = event.getNodeA().getName();
         String nodeB = event.getNodeB().getName();
         if(nodeA.equals("Spaceship") || nodeB.equals("Spaceship")) {
-            if(nodeB.equals("Sun") || nodeA.equals("Sun")) {
+            lives = -1;
+            
+            /*if(nodeB.equals("Sun") || nodeA.equals("Sun")) {
                 lives -= 3;
             } else {
                 lives--;                
-            }
+            }*/
             if(lives >= 0) {
-                /*
-                guiNode.detachChild(livespic[lives]);
+                //guiNode.detachChild(livespic[lives]);
                 Vector3f movement = new Vector3f(0, 0, 0);
                 spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
                 spaceship.getControl().setLinearVelocity(movement);
-                 * 
-                 */
             } else {
                 speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
