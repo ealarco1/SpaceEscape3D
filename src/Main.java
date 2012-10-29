@@ -553,6 +553,16 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     public void collision(PhysicsCollisionEvent event) {
         if(event.getNodeA().getName().equals("Spaceship")) {
             if(event.getNodeB().getName().equals("Sun")) {
+                lives -= 3;
+            } else {
+                lives--;                
+            }
+            if(lives >= 0) {
+                guiNode.detachChild(livespic[lives]);
+                Vector3f movement = new Vector3f(0, 0, 0);
+                spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
+                spaceship.getControl().setLinearVelocity(movement);
+            } else {
                 speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
                 generateDebris(spaceship.getWorldTranslation());
@@ -563,20 +573,19 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 guiNode.detachChild(showText);
                 showText.setText("GAME OVER");
                 guiNode.attachChild(showText);
-            } else {
-                lives--;
-                if(lives >= 0) {
-                    guiNode.detachChild(livespic[lives]);
-                    Vector3f movement = new Vector3f(0, 0, 0);        
-                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
-                    spaceship.getControl().setLinearVelocity(movement);
-                } else {
-                    showText.setText("GAME OVER");
-                    guiNode.attachChild(showText);
-                }
             }
         } else if(event.getNodeB().getName().equals("Spaceship")) {
             if(event.getNodeA().getName().equals("Sun")) {
+                lives -= 3;
+            } else {
+                lives--;
+            }
+            if(lives >= 0) {
+                guiNode.detachChild(livespic[lives]);
+                Vector3f movement = new Vector3f(0, 0, 0);
+                spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
+                spaceship.getControl().setLinearVelocity(movement);
+            } else {
                 speed = 0.2f;
                 generateExplosion(spaceship.getWorldTranslation());
                 generateDebris(spaceship.getWorldTranslation());
@@ -587,18 +596,6 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
                 guiNode.detachChild(showText);
                 showText.setText("GAME OVER");
                 guiNode.attachChild(showText);
-                
-            } else {
-                lives--;
-                if(lives >= 0) {
-                    guiNode.detachChild(livespic[lives]);
-                    Vector3f movement = new Vector3f(0, 0, 0);        
-                    spaceship.getWorldRotation().mult(new Vector3f(0, 0, 10), movement);
-                    spaceship.getControl().setLinearVelocity(movement);
-                } else {
-                    showText.setText("GAME OVER");
-                    guiNode.attachChild(showText);
-                }
             }
         } else if (event.getNodeA().getName().equals("Laser")) {
             if(event.getNodeB().getName().equals("Asteroid")) {
