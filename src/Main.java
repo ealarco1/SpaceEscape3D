@@ -22,6 +22,7 @@ import com.jme3.post.filters.BloomFilter;
 import com.jme3.renderer.RenderManager;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.ui.Picture;
 import com.jme3.util.SkyFactory;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
@@ -50,9 +51,11 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     private Node asteroids;
     private Node lasers;
     private float noComet;
-    
+    private int lives;
     private boolean up, down, left, right, leftSide, rightSide;
     private boolean moving;
+    private BitmapText showText;
+    private Picture livespic[];
 
     public static void main(String[] args) {
         Main app = new Main();        
@@ -78,6 +81,23 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         stateManager.attach(bap);
         bap.getPhysicsSpace().setGravity(Vector3f.ZERO);
         bap.getPhysicsSpace().addCollisionListener(this);
+        
+        guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
+        showText = new BitmapText(guiFont, false);
+        showText.setSize(50);
+        showText.setColor(ColorRGBA.Red);
+        showText.setLocalTranslation((settings.getWidth()/2)-200,settings.getHeight()/2, 0);
+        
+        lives = 3;
+        livespic = new Picture[lives];
+        for(int i=0; i < lives; i++){ 
+            livespic[i] = new Picture("Live "+i);
+            livespic[i].setImage(assetManager, "Textures/LifeLogo.png", true);
+            livespic[i].setWidth(50);
+            livespic[i].setHeight(50);
+            livespic[i].setPosition(i*50, settings.getHeight()-50);
+            guiNode.attachChild(livespic[i]);
+        }
         
         planets = new Planet[9];
         
@@ -105,7 +125,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         mat2.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Venus.jpg"));
         mat2.setColor("Specular", ColorRGBA.White);
         venus = new Planet("Venus", 2.6f, mat2);
-        venus.setInitLocation(new Vector3f(20.0f, 0f, -6.0f));
+        venus.setInitLocation(new Vector3f(23.0f, 0f, -6.0f));
         venus.setRotationSpeed((float)Math.random());
         venus.setTranslationSpeed(0.65f);
         venus.registerPhysics(bap.getPhysicsSpace());
@@ -117,7 +137,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         mat3.setTexture("ParallaxMap", assetManager.loadTexture("Textures/Earth/Bump.jpg"));
         mat3.setTexture("SpecularMap", assetManager.loadTexture("Textures/Earth/Specular.jpg"));
         earth = new Planet("Earth", 2.7f, mat3);
-        earth.setInitLocation(new Vector3f(28.0f, 0f, -6.0f));
+        earth.setInitLocation(new Vector3f(31.0f, 0f, -6.0f));
         earth.setRotationSpeed((float)Math.random());
         earth.setTranslationSpeed(0.6f);
         earth.registerPhysics(bap.getPhysicsSpace());
@@ -128,7 +148,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         mat4.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Mars.jpg"));
         mat4.setColor("Specular", ColorRGBA.White);
         mars = new Planet("Mars", 2.5f, mat4);
-        mars.setInitLocation(new Vector3f(35.0f, 0f, -6.0f));
+        mars.setInitLocation(new Vector3f(40.0f, 0f, -6.0f));
         mars.setRotationSpeed((float)Math.random());
         mars.setTranslationSpeed(0.56f);
         mars.registerPhysics(bap.getPhysicsSpace());
@@ -450,27 +470,39 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
 
     public void collision(PhysicsCollisionEvent event) {
         if(event.getNodeA().getName().equals("Spaceship")) {
-            final Spatial sp = event.getNodeA();
-            guiNode.detachAllChildren();
-            guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-            BitmapText helloText = new BitmapText(guiFont, false);
-            helloText.setSize(50);
-            helloText.setColor(ColorRGBA.Red);
-            helloText.setText("La nave chocó algo");
-            Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
-            helloText.setLocalTranslation(p.x-200,p.y, 0);
-            guiNode.attachChild(helloText);
+            if(event.getNodeB().getName().equals("Sun")) {
+                final Spatial sp = event.getNodeA(); //Con esto es que podes mover la nave
+                lives = 0;
+                guiNode.detachAllChildren();
+                guiNode.detachChild(showText);
+                showText.setText("GAME OVER");
+                guiNode.attachChild(showText);
+            } else {
+                lives--;
+                if(lives>=0) {
+                    guiNode.detachChild(livespic[lives]);
+                } else {
+                    showText.setText("GAME OVER");
+                    guiNode.attachChild(showText);
+                }
+            }
         } else if(event.getNodeB().getName().equals("Spaceship")) {
-            final Spatial sp = event.getNodeB();
-            guiNode.detachAllChildren();
-            guiFont = assetManager.loadFont("Interface/Fonts/Default.fnt");
-            BitmapText helloText = new BitmapText(guiFont, false);
-            helloText.setSize(50);
-            helloText.setColor(ColorRGBA.Red);
-            helloText.setText("Algo chocó la nave");
-            Point p = GraphicsEnvironment.getLocalGraphicsEnvironment().getCenterPoint();
-            helloText.setLocalTranslation(p.x-200,p.y, 0);
-            guiNode.attachChild(helloText);
+            if(event.getNodeA().getName().equals("Sun")) {
+                final Spatial sp = event.getNodeA(); //Con esto es que podes mover la nave
+                lives = 0;
+                guiNode.detachAllChildren();
+                guiNode.detachChild(showText);
+                showText.setText("GAME OVER");
+                guiNode.attachChild(showText);
+            } else {
+                lives--;
+                if(lives>=0) {
+                    guiNode.detachChild(livespic[lives]);
+                } else {
+                    showText.setText("GAME OVER");
+                    guiNode.attachChild(showText);
+                }
+            }
         }
     }
 }
