@@ -440,7 +440,6 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
             ParticleEmitter explosion = (ParticleEmitter) spatial;
             if (explosion.getNumVisibleParticles() < 1) {
                 explosion.removeFromParent();
-                System.out.println("Hola!");
             }
         }
             
