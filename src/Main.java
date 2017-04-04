@@ -1,6 +1,8 @@
 
 
 import com.jme3.app.SimpleApplication;
+import com.jme3.audio.AudioData;
+import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
@@ -123,7 +125,7 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
         mat10.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Sun.jpg"));
         mat10.setTexture("GlowMap", assetManager.loadTexture("Textures/Sun.jpg"));
         mat10.setColor("Specular", ColorRGBA.White);
-        mat10.setBoolean("UseAlpha", true);
+        //mat10.setBoolean("UseAlpha", true);
         sun = new Planet("Sun", 5f, mat10);
         sun.registerPhysics(bap.getPhysicsSpace());
         rootNode.attachChild(sun);
@@ -286,25 +288,29 @@ public class Main extends SimpleApplication implements PhysicsCollisionListener 
     }
     
     private void initAudio() {    
-        bgAudio = new AudioNode(assetManager, "Sound/Background.wav", false);
+        bgAudio = new AudioNode(assetManager, "Sound/Background.wav", DataType.Buffer);
         bgAudio.setLooping(true);
         bgAudio.setVolume(3);
+        bgAudio.setPositional(false);
         rootNode.attachChild(bgAudio);
         bgAudio.play();
         
-        explosionAudio = new AudioNode(assetManager, "Sound/Explosion.wav", false);
+        explosionAudio = new AudioNode(assetManager, "Sound/Explosion.wav", DataType.Buffer);
         explosionAudio.setLooping(false);
         explosionAudio.setVolume(0.5f);
+        bgAudio.setPositional(false);
         rootNode.attachChild(explosionAudio);     
         
-        AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", false);
+        AudioNode accelAudio = new AudioNode(assetManager, "Sound/Fire4.wav", DataType.Buffer);
         accelAudio.setLooping(true);
         accelAudio.setVolume(10);
+        bgAudio.setPositional(false);
         spaceship.initAudio("Accelerate", accelAudio);
         
-        AudioNode laserAudio = new AudioNode(assetManager, "Sound/Laser.wav", false);
+        AudioNode laserAudio = new AudioNode(assetManager, "Sound/Laser.wav", DataType.Buffer);
         laserAudio.setLooping(false);
         laserAudio.setVolume(1);
+        bgAudio.setPositional(false);
         spaceship.initAudio("Laser", laserAudio);
     }
     
